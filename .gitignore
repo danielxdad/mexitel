@@ -1,0 +1,12 @@
+*.pyc
+*.pyo
+db.sqlite3
+public/static/*
+public/media/*
+.idea/*
+config.ini
+.coverage
+htmlcov/*
+playbook.retry
+*.code-workspace
+.vscode/settings.json

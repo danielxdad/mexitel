@@ -9,4 +9,10 @@ config.ini
 htmlcov/*
 playbook.retry
 *.code-workspace
-.vscode/settings.json
+.vscode/
+chromedriver
+*.xls
+*.xlsx
+geckodriver.log
+*.swp
+

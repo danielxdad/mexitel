@@ -4,6 +4,7 @@ import argparse
 import time
 import os
 import pathlib
+import atexit
 from urllib import parse
 
 import pandas as pd
@@ -168,10 +169,26 @@ def check_procesing_modal(driver):
         while element.is_displayed():
             time.sleep(0.3)
 
+
+def exithandler():
+    """
+    Exit handler para cerrar webdriver
+    @return None
+    """
+    global driver
+    if isinstance(driver, webdriver.Firefox) or isinstance(driver, webdriver.Chrome):
+        try:
+            driver.close()
+        except:
+            pass
+
+
 def main():
     """
     Funcion inicial de la app
     """
+    global driver
+
     parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
     parser.add_argument('file', nargs=1, help='fichero con datos de pasaporte')
     args = parser.parse_args()
@@ -304,10 +321,11 @@ def main():
     except EOFError:
         pass
 
-    driver.close()
     return 0
 
 if __name__ == "__main__":
+    driver = None
+    atexit.register(exithandler)
     try:
         exit(main())
     except KeyboardInterrupt:

@@ -113,9 +113,9 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.5]),
+            ('pause', [0.7]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
-            ('pause', [0.25]),
+            ('pause', [0.5]),
             ('send_keys', ['<!-data-!>']),
         ]
     }),

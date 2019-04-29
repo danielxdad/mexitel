@@ -8,7 +8,6 @@ import atexit
 from urllib import parse
 
 import pandas as pd
-import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -173,7 +172,7 @@ def check_procesing_modal(driver):
 def exithandler():
     """
     Exit handler para cerrar webdriver
-    @return None
+    :return: None
     """
     global driver
     if isinstance(driver, webdriver.Firefox) or isinstance(driver, webdriver.Chrome):
@@ -181,6 +180,75 @@ def exithandler():
             driver.close()
         except:
             pass
+
+
+def execute_action_navigator(action, row):
+    """
+    Ejecuta una accion en el navegador
+    :param action: Diccionario que describe la accion a ejecutar
+    :param row: Registro(row) del DataFrame con informacion de cliente
+    :return: None, dispara una excepcion ValueError en caso de error
+    """
+    # Obtenemos el elemento por el metodo especificado en la configuracion
+    try:
+        element = driver.find_element(action['find_by'], action['selector'])
+    except NoSuchElementException:
+        print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
+        return -1
+    
+    # Hacmos un scroll al elemento para mostrarlo en el ViewPort
+    driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
+    time.sleep(0.5)
+
+    data_source, data_field = action['data']
+    if data_source == 'dataframe' and data_field not in row:
+        print('[ERROR] - La columna "{}" no existe en el DataFrame.'.format(data_field))
+        return -1
+    
+    # Realizamos las acciones de establecimiento de valor
+    if action['fill_method'] == 'actions_chain' and len(action['actions_chain']):
+        action_chain = ActionChains(driver)
+        for ac in action['actions_chain']:
+            params = []
+            for p in ac[1]:
+                if p == '<!-data-!>':
+                    if data_source == 'dataframe':
+                        params.append(row[data_field])
+                elif p == '<!-element-!>':
+                    params.append(element)
+                else:
+                    params.append(p)
+            
+            # Hay que emular la escritura de una persona con un tiempo de espera entre cada pulsacion
+            if ac[0] == 'send_keys':
+                if action['tag_name'] == 'label':
+                    for key in params[0]:
+                        if type(key) == str:
+                            code = 'action_chain.{}("{}")'.format(ac[0], key)
+                        else:
+                            code = 'action_chain.{}({})'.format(ac[0], key)
+                        eval(code, None, {'action_chain': action_chain, 'params': params, 'element': element})
+                        eval('action_chain.pause(0.07)')
+                
+                else:   # Si es un campo "INPUT" no hacemos el tiempo de espera entre cada pulsacion
+                    action_chain.send_keys(params[0])
+            
+            # Chequemos la presencia del modal "Procesando..."
+            elif ac[0] == '<!-check-procesing-modal-!>':
+                check_procesing_modal(driver)
+            
+            else:
+                eval('action_chain.{}(*params)'.format(ac[0]), None, 
+                    {'action_chain': action_chain, 'params': params, 'element': element})
+        
+        try:
+            eval('action_chain.perform()', None, {'action_chain': action_chain, 'element': element})
+        except MoveTargetOutOfBoundsException:
+            print('[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(action['selector']))
+            return -1
+        else:
+            # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
+            check_procesing_modal(driver)
 
 
 def main():
@@ -227,64 +295,11 @@ def main():
             return
 
         print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
-        for column in config.MAP_COLUMNS_INPUT:
-            mci = config.MAP_COLUMNS_INPUT[column]
-
-            if column not in row:
-                print('[ERROR] - La columna "{}" no existe en el DataFrame.'.format(column))
-                return -1
-
-            # Obtenemos el elemento por el metodo especificado en la configuracion
-            try:
-                element = driver.find_element(mci['find_by'], mci['selector'])
-            except NoSuchElementException:
-                print('[ERROR] - No se puede encontrar el elemento "{}" asociado a la columna "{}"'.format(mci['selector'], 
-                    column))
-                return -1
-            
-            # Hacmos un scroll al elemento para mostrarlo en el ViewPort
-            driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format(mci['selector']))
-            time.sleep(0.5)
-            
-            # Realizamos las acciones de establecimiento de valor
-            if mci['fill_method'] == 'actions_chain':
-                action_chain = ActionChains(driver)
-                for ac in mci['actions_chain']:
-                    params = []
-                    for p in ac[1]:
-                        if p == '<!-data-!>':
-                            params.append(row[column])
-                        elif p == '<!-element-!>':
-                            params.append(element)
-                        else:
-                            params.append(p)
-                    
-                    # Hay que emular la escritura de una persona con un tiempo de espera entre cada pulsacion
-                    if ac[0] == 'send_keys':
-                        for key in params[0]:
-                            if type(key) == str:
-                                code = 'action_chain.{}("{}")'.format(ac[0], key)
-                            else:
-                                code = 'action_chain.{}({})'.format(ac[0], key)
-                            eval(code, None, {'action_chain': action_chain, 'params': params, 'element': element})
-                            eval('action_chain.pause(0.07)')
-                    elif ac[0] == '<!-check-procesing-modal-!>':
-                        check_procesing_modal(driver)
-                    else:
-                        eval('action_chain.{}(*params)'.format(ac[0]), None, 
-                            {'action_chain': action_chain, 'params': params, 'element': element})
-                
-                try:
-                    eval('action_chain.perform()', None, {'action_chain': action_chain, 'element': element})
-                except MoveTargetOutOfBoundsException:
-                    print('[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(mci['selector']))
-                    return -1
-                else:
-                    # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
-                    check_procesing_modal(driver)
-
+        for action_index, action in enumerate(config.ACTIONS_LIST):
+            if action['action_type'] == 'navigator':
+                execute_action_navigator(action, row)
             else:
-                print('[ERROR] - El metodo de llenado para la columna "{}" es invalido.'.format(column))
+                print('[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(action_index + 1, action['action_type']))
                 return -1
 
         while True:
@@ -317,7 +332,7 @@ def main():
         df.to_excel(writer, index=False)
     
     try:
-        input('[INFO] - Presione una tecla para salir')
+        input('[INFO] - Presione "Enter" para salir...')
     except EOFError:
         pass
 

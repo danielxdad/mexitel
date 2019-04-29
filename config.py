@@ -23,11 +23,13 @@ FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile/')
 
 PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
 
-MAP_COLUMNS_INPUT = collections.OrderedDict([
-    ('pais', {
+ACTIONS_LIST = [
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectPais_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'pais'), # Especifica el origen de los datos que se utilizaran para llenar el campo
         'fill_method': 'actions_chain',
         'actions_chain': [
             # El primer elemento de cada tupla es un metodo de "selenium.webdriver.action_chains.ActionChains", 
@@ -37,11 +39,13 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']), # Enviamos los datos de la columna pais (<!-data-!>)
             ('send_keys', [Keys.ENTER]), # Damos enter
         ]
-    }),
-    ('documento', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectTipoDocumento_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'documento'), # Especifica el origen de los datos que se utilizaran para llenar el campo
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -49,11 +53,13 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('tramite', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectTramite_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'tramite'), # Especifica el origen de los datos que se utilizaran para llenar el campo
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -61,11 +67,13 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('detalle', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectTipoTramite_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'detalle'), # Especifica el origen de los datos que se utilizaran para llenar el campo
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -73,22 +81,26 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('pasaporte', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:noPasapAnt',
         'tag_name': 'input',
+        'data': ('dataframe', 'pasaporte'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
             ('send_keys', ['<!-data-!>']),
         ]
-    }),
-    ('pais_emision_pasaporte', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectPaisPasaporte_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'pais_emision_pasaporte'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -96,35 +108,41 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('nombre', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:nombre',
         'tag_name': 'input',
+        'data': ('dataframe', 'nombre'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
             ('send_keys', ['<!-data-!>']),
         ]
-    }),
-    ('apellidos', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:Apellidos',
         'tag_name': 'input',
+        'data': ('dataframe', 'apellidos'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.7]),
+            ('pause', [1.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
-            ('pause', [0.5]),
+            ('pause', [0.7]),
             ('send_keys', ['<!-data-!>']),
         ]
-    }),
-    ('nacionalidad', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectNacionalidad_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'nacionalidad'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -132,22 +150,26 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('fecha_nacimiento', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:fechaNacimiento_input',
         'tag_name': 'input',
+        'data': ('dataframe', 'fecha_nacimiento'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
             ('send_keys', ['<!-data-!>']),
         ]
-    }),
-    ('pais_nacimiento', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:selectPaisNacimiento_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'pais_nacimiento'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -155,11 +177,13 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('sexo', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:sexo_label',
         'tag_name': 'label',
+        'data': ('dataframe', 'sexo'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
@@ -167,16 +191,28 @@ MAP_COLUMNS_INPUT = collections.OrderedDict([
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
-    }),
-    ('telefono_movil', {
+    },
+    {
+        'action_type': 'navigator',
         'find_by': By.ID,
         'selector': 'formRegistroCitaExtranjero:telmovil',
         'tag_name': 'input',
+        'data': ('dataframe', 'telefono_movil'),
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
             ('send_keys', ['<!-data-!>']),
         ]
-    }),
-])
+    },
+    # Hacer scroll al boton "Buscar citas"
+    {
+        'action_type': 'navigator',
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:buscarCita',
+        'tag_name': 'button',
+        'data': (None, None),
+        'fill_method': 'actions_chain',
+        'actions_chain': []
+    }
+]

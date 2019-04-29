@@ -21,6 +21,8 @@ if not os.path.exists(CHROME_DRIVER_PATH):
 
 FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile/')
 
+PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
+
 MAP_COLUMNS_INPUT = collections.OrderedDict([
     ('pais', {
         'find_by': By.ID,

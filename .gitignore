@@ -15,4 +15,4 @@ chromedriver
 *.xlsx
 geckodriver.log
 *.swp
-
+pdf/*

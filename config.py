@@ -21,8 +21,21 @@ if not os.path.exists(CHROME_DRIVER_PATH):
 
 FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile/')
 
+PDF_TMP_DIR = os.path.join(BASE_DIR, 'pdf/')
 PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
 
+# Email account config
+EMAIL_HOST = 'imap.gmail.com'
+EMAIL_ACCOUNT = 'danielxdad@gmail.com'
+EMAIL_PASSWORD = 'xdad641489542976'
+
+# Fichero para registro de UIDs de email obtenidos desde servidor IMAP para evitar doble procesamiento.
+FILE_EMAIL_UID_REG = os.path.join(BASE_DIR, 'email_uid_register.txt')
+if not os.path.exists(FILE_EMAIL_UID_REG):
+    with open(FILE_EMAIL_UID_REG, 'w') as fd:
+        pass
+
+# Accciones
 ACTIONS_LIST = [
     {
         'action_type': 'navigator', # Especifica que tipo de accion es

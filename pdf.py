@@ -123,9 +123,16 @@ def extract_pdf_tokens(pdf_file_path):
 
 if __name__ == '__main__':
     # Test
+    import sys
     import time
+    
+    if len(sys.argv) <= 1:
+        print('[ERROR] - Especifica un PDF con los token!!!')
+        exit()
+        
     bt = time.time()
-    codigo_seg, text_token = extract_pdf_tokens('/home/daniel/CodigoSeguridadCita.pdf')
+    codigo_seg, text_token = extract_pdf_tokens(sys.argv[1])
+
     print('Execute time: %.2f' % (time.time() - bt))
     print('Codigo seg:', codigo_seg)
     print('Token:', text_token)

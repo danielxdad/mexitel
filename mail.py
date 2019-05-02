@@ -158,7 +158,7 @@ if __name__ == '__main__':
             pdf_file_path = save_pdf_from_message(message)
             print(pdf_file_path)
         """
-        message = get_email_pdf_tokens()
+        message = get_email_pdf_tokens(timeout=60, filter_email_from='citas_sre@sre.gob.mx')
         if message:
             from pdf import extract_pdf_tokens
             pdf_file_path = save_pdf_from_message(message)

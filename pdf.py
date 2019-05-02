@@ -17,12 +17,11 @@ with warnings.catch_warnings():
 from config import PDF_TMP_IMAGES_DIR
 
 
-def extract_pdf_images(doc, page=0, filter_dim=(229, 57)):
+def extract_pdf_images(doc, page=0):
     """
     Extrea las imagenes y obtiene el "Codigo de seguridad" del documento PDF.
     :param doc: Instancia de documento PDF
     :param page: Numero de pagina(base 0) de la cual se extraeran las imagenes
-    :param filter_dim: Tupla con las dimensiones(ancho, alto) para filtrar las imagenes
     :return: String con codigo de seguridad o dispara una excepcion en caso de error
     """
     # Si no existe el dictorio temporal para las imagenes, lo creamos
@@ -41,7 +40,12 @@ def extract_pdf_images(doc, page=0, filter_dim=(229, 57)):
         height = image[3]
 
         # Si no corresponde el alto y el ancho con el declarado en filter_dimension no se guarda la imagen
-        if (width, height) != filter_dim:
+        # Resoluciones obtenidas en pruebas de imagen con "Codigo de seguridad":
+        # 209x57
+        # 229x57
+        # 235x57
+        # 247x57
+        if not(200 <= width <= 260 and height == 57):
             continue
 
         # Convertimos la imagen a escala de grises

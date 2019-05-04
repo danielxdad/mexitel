@@ -49,6 +49,7 @@ ACTIONS_LIST = [
             # el segundo (lista) son los parametros
             ('click', ['<!-element-!>']),  # Damos un click en el elemento
             ('pause', [0.4]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']), # Enviamos los datos de la columna pais (<!-data-!>)
             ('send_keys', [Keys.ENTER]), # Damos enter
         ]
@@ -63,6 +64,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -77,6 +79,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -91,6 +94,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -105,6 +109,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -118,6 +123,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -132,6 +138,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -160,6 +167,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -174,6 +182,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -187,6 +196,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -201,6 +211,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -215,6 +226,7 @@ ACTIONS_LIST = [
         'actions_chain': [
             ('click', ['<!-element-!>']),
             ('pause', [0.4]),
+            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
     },

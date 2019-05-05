@@ -169,7 +169,7 @@ ACTIONS_LIST = [
             ('click', ['<!-element-!>']),  # Damos un click en el elemento
             ('pause', [0.5]), # Pause de 0.5 segundos
             ('<!-check-procesing-modal-!>', []),
-            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('pause', [0.8]), # Pause de 0.5 segundos
             ('send_keys', ['HOMBRE']), # Enviamos los datos de la columna pais (<!-data-!>)
             ('send_keys', [Keys.ENTER]), # Damos enter
         ]

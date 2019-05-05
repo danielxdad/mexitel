@@ -15,6 +15,11 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
     MoveTargetOutOfBoundsException
 
 import config
+import cal
+from cal import MESES, ANIOS, calendar
+
+driver = None   # Variable global para WebDriver handler
+args = None     # Variable global para parametros de la linea de comandos
 
 
 # From: http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
@@ -52,21 +57,35 @@ def test_url_page_title(driver, url, title):
     @param title: Titulo a testear
     @return bool: Devuelve True o False como resultado de coincidencia
     """
-    if driver.current_url == url and driver.title == title:
-        return True
-    return False
+    parser_driver_url = parse.urlparse(driver.current_url)
+    parser_url = parse.urlparse(url)
+    pdu_tuple = (parser_driver_url.scheme, parser_driver_url.netloc, parser_driver_url.path)
+    pu_tuple = (parser_url.scheme, parser_url.netloc, parser_url.path)
+    return pdu_tuple == pu_tuple and driver.title.lower() == title.lower()
 
 
-def init_driver_instance(webdriver_type='firefox', implicitly_wait=2):
+def init_driver_instance(webdriver_type='firefox', implicitly_wait=5):
     """
     Inicia el manejador de Chrome
     @param implicitly_wait: Tiempo de espera para carga y busqueda de elementos en las paginas.
     @return: Instancia de selenium.webdriver.Chrome
     """
+    global args
+
     if webdriver_type == 'firefox':
-        if not os.path.exists(config.FIREFOX_PROFILE_PATH):
-            os.makedirs(config.FIREFOX_PROFILE_PATH)
-        fp = webdriver.FirefoxProfile(config.FIREFOX_PROFILE_PATH)
+        fp = webdriver.FirefoxProfile()
+        # Lenguage por defecto
+        fp.set_preference("intl.accept_languages", 'es-ES, es, en-US, en')
+        # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
+        fp.set_preference("security.mixed_content.block_active_content", False)
+        # Si se ha especificado el parametro --tor en la linea de comandos
+        if args.tor:
+            # Establecemos el Proxy SOCKSv5 en el navegador
+            fp.set_preference("network.proxy.type", 1)
+            fp.set_preference("network.proxy.socks", "127.0.0.1")
+            fp.set_preference("network.proxy.socks_port", 9050)
+            fp.set_preference("network.proxy.socks_version", 5)
+        fp.update_preferences()
         driver = webdriver.Firefox(firefox_profile=fp)
     elif webdriver_type == 'chrome':
         driver = webdriver.Chrome(config.CHROME_DRIVER_PATH)
@@ -75,7 +94,7 @@ def init_driver_instance(webdriver_type='firefox', implicitly_wait=2):
 
     driver.implicitly_wait(implicitly_wait)
     driver.maximize_window()
-    # driver.minimize_window()
+
     return driver
 
 
@@ -149,24 +168,22 @@ def login(driver):
 def check_procesing_modal(driver):
     """
     Testea que el modal "Procesando..." este visible y espera a su cierre.
-    @param driver: Instancia de WebDriver
+    :param driver: Instancia de WebDriver
     return None
     """
     # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
     element = None
-    time.sleep(0.7)
-    for _ in range(20):
-        try:
-            element = driver.find_element(By.ID, 'j_idt24')
-        except NoSuchElementException:
-            break
-        else:
-            break
-        time.sleep(0.2)
-
-    if element:
+    # time.sleep(0.8)
+    # for _ in range(10):
+    # time.sleep(0.4)
+    try:
+        element = driver.find_element_by_id('j_idt24')
+    except NoSuchElementException:
+        pass
+    else:
         while element.is_displayed():
-            time.sleep(0.3)
+            time.sleep(0.5)
+    # time.sleep(0.8)
 
 
 def exithandler():
@@ -182,28 +199,40 @@ def exithandler():
             pass
 
 
+def action_ask_completation_captcha(driver=None, args=None):
+    """
+    Funcion que pregunta en la consola si se ha completado el captcha de Google. Se invocara desde la lista de acciones.
+    :param driver: Instancia de driver de navegador
+    :param args: Argumentos pasado en la linea de comandos
+    :return: Boolean
+    """
+    if input('[QUEST] - ¿Se ha completado el Captcha de Google? (si/no): ').lower() == 'si':
+        return True
+    return False
+
+
 def execute_action_navigator(action, row):
     """
     Ejecuta una accion en el navegador
     :param action: Diccionario que describe la accion a ejecutar
     :param row: Registro(row) del DataFrame con informacion de cliente
-    :return: None, dispara una excepcion ValueError en caso de error
+    :return: Boolean True o False
     """
+    # Hacemos un scroll al elemento para mostrarlo en el ViewPort
+    driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
+    time.sleep(0.1)
+
     # Obtenemos el elemento por el metodo especificado en la configuracion
     try:
         element = driver.find_element(action['find_by'], action['selector'])
     except NoSuchElementException:
         print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
-        return -1
-    
-    # Hacmos un scroll al elemento para mostrarlo en el ViewPort
-    driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
-    time.sleep(0.5)
+        return False
 
     data_source, data_field = action['data']
     if data_source == 'dataframe' and data_field not in row:
         print('[ERROR] - La columna "{}" no existe en el DataFrame.'.format(data_field))
-        return -1
+        return False
     
     # Realizamos las acciones de establecimiento de valor
     if action['fill_method'] == 'actions_chain' and len(action['actions_chain']):
@@ -245,20 +274,34 @@ def execute_action_navigator(action, row):
             eval('action_chain.perform()', None, {'action_chain': action_chain, 'element': element})
         except MoveTargetOutOfBoundsException:
             print('[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(action['selector']))
-            return -1
+            return False
         else:
             # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
             check_procesing_modal(driver)
+    
+    return True
+
+
+def procesar_calendario(driver=None, args=None):
+    """
+    Funcion que invoca el procesamiento del calendario
+    :param driver: Instancia de driver de navegador
+    :param args: Argumentos pasado en la linea de comandos
+    :return: Boolean
+    """
+    return cal.calendar(driver, args.mes[0], args.anio[0])
 
 
 def main():
     """
     Funcion inicial de la app
     """
-    global driver
-
+    global driver, args
     parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
-    parser.add_argument('file', nargs=1, help='fichero con datos de pasaporte')
+    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario')
+    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario')
+    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5')
+    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes')
     args = parser.parse_args()
 
     excel_file = pathlib.Path(args.file[0])
@@ -289,15 +332,31 @@ def main():
 
         # Testeamos la url actual y el titulo de la pagina
         if not test_url_page_title(driver, 
-            'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+            'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
             'Citas SRE'):
             print('[ERROR] - No se pudo acceder a la pagina de citas.')
-            return
+            return -1
 
         print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
         for action_index, action in enumerate(config.ACTIONS_LIST):
             if action['action_type'] == 'navigator':
-                execute_action_navigator(action, row)
+                if not execute_action_navigator(action, row):
+                    return -1
+
+            elif action['action_type'] == 'function':
+                if 'function' not in action:
+                    print('[ERROR] - La clave "function" no existe en la accion "function", indice: %d' % action_index)
+                    return -1 
+                
+                func = action['function']
+                if not callable(func):
+                    print('[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d' % action_index)
+                    return -1
+
+                if not func(driver, args):
+                    print('[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d' % action_index)
+                    return -1
+
             else:
                 print('[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(action_index + 1, action['action_type']))
                 return -1
@@ -339,9 +398,9 @@ def main():
     return 0
 
 if __name__ == "__main__":
-    driver = None
     atexit.register(exithandler)
     try:
         exit(main())
     except KeyboardInterrupt:
+        print('')
         exit(0)

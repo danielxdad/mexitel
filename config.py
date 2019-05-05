@@ -5,6 +5,8 @@ import collections
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+import main
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,7 +21,7 @@ if not os.path.exists(CHROME_DRIVER_PATH):
     print('ChromeDriver no existe en el path "{}"'.format(CHROME_DRIVER_PATH))
     exit()
 
-FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile/')
+FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile.default/')
 
 PDF_TMP_DIR = os.path.join(BASE_DIR, 'pdf/')
 PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
@@ -35,7 +37,193 @@ if not os.path.exists(FILE_EMAIL_UID_REG):
     with open(FILE_EMAIL_UID_REG, 'w') as fd:
         pass
 
-# Accciones
+# Acciones
+# CERTIFICADOS, LEGALIZACIONES Y VISADOS
+ACTIONS_LIST = [
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:selectPais_label',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            # ('<!-check-procesing-modal-!>', []),
+            ('send_keys', ['CUBA']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:selectTipoDocumento_label',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('send_keys', ['CERTIFICADOS, LEGALIZACIONES Y VISADOS']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:selectNoLegalizados_label',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('send_keys', ['1']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:doc:0:noMinrex',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('send_keys', ['213']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:nombre',
+        'tag_name': 'input',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['JOSE']), # Enviamos los datos de la columna pais (<!-data-!>)
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:ApellidoPat',
+        'tag_name': 'input',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['CASTILLO']), # Enviamos los datos de la columna pais (<!-data-!>)
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:ApellidoMat',
+        'tag_name': 'input',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['LORENZO']), # Enviamos los datos de la columna pais (<!-data-!>)
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:fechaNacimiento_input',
+        'tag_name': 'input',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['15/06/1985']), # Enviamos los datos de la columna pais (<!-data-!>)
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:sexo_label',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['HOMBRE']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+        ]
+    },
+    {
+        'action_type': 'navigator', # Especifica que tipo de accion es
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:telmovil',
+        'tag_name': 'input',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['58692356']), # Enviamos los datos de la columna pais (<!-data-!>)
+        ]
+    },
+    # Hacer scroll al boton "Buscar citas"
+    {
+        'action_type': 'navigator',
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:buscarCita',
+        'tag_name': 'button',
+        'data': (None, None),
+        'fill_method': 'actions_chain',
+        'actions_chain': []
+    },
+    # Accion para Captcha de Google
+    {
+        'action_type': 'function', # Especifica que tipo de accion es
+        'function': main.action_ask_completation_captcha,    # Nombre de la funcion que se ejeuctara en este paso
+    },
+    # Accion para testear que el calendario este visible
+    {
+        'action_type': 'navigator',
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:schedule',
+        'tag_name': 'div',
+        'data': (None, None),
+        'fill_method': 'actions_chain',
+        'actions_chain': [],
+    },
+    # Accion para trabajo en el Calendario
+    {
+        'action_type': 'function', # Especifica que tipo de accion es
+        'function': main.procesar_calendario,    # Nombre de la funcion que se ejeuctara en este paso
+    },
+]
+"""
+# Visas
 ACTIONS_LIST = [
     {
         'action_type': 'navigator', # Especifica que tipo de accion es
@@ -48,8 +236,8 @@ ACTIONS_LIST = [
             # El primer elemento de cada tupla es un metodo de "selenium.webdriver.action_chains.ActionChains", 
             # el segundo (lista) son los parametros
             ('click', ['<!-element-!>']),  # Damos un click en el elemento
-            ('pause', [0.4]), # Pause de 0.5 segundos
-            ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            # ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']), # Enviamos los datos de la columna pais (<!-data-!>)
             ('send_keys', [Keys.ENTER]), # Damos enter
         ]
@@ -63,7 +251,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -78,7 +266,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -93,7 +281,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -108,8 +296,9 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
+            ('pause', [0.2]),
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -122,8 +311,9 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
+            ('pause', [0.2]),
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
         ]
@@ -137,8 +327,9 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
+            ('pause', [0.2]),
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -151,9 +342,9 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [1.5]),
+            ('pause', [1]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
-            ('pause', [0.7]),
+            ('pause', [0.5]),
             ('send_keys', ['<!-data-!>']),
         ]
     },
@@ -166,7 +357,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -181,7 +372,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
@@ -195,7 +386,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -210,7 +401,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
             ('send_keys', [Keys.ENTER]),
@@ -225,7 +416,7 @@ ACTIONS_LIST = [
         'fill_method': 'actions_chain',
         'actions_chain': [
             ('click', ['<!-element-!>']),
-            ('pause', [0.4]),
+            ('pause', [0.5]),
             ('<!-check-procesing-modal-!>', []),    # Magic para testear modal "Procesando..."
             ('send_keys', ['<!-data-!>']),
         ]
@@ -239,5 +430,26 @@ ACTIONS_LIST = [
         'data': (None, None),
         'fill_method': 'actions_chain',
         'actions_chain': []
-    }
+    },
+    # Accion para Captcha de Google
+    {
+        'action_type': 'function', # Especifica que tipo de accion es
+        'function': main.action_ask_completation_captcha,    # Nombre de la funcion que se ejeuctara en este paso
+    },
+    # Accion para testear que el calendario este visible
+    {
+        'action_type': 'navigator',
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:schedule',
+        'tag_name': 'div',
+        'data': (None, None),
+        'fill_method': 'actions_chain',
+        'actions_chain': [],
+    },
+    # Accion para trabajo en el Calendario
+    {
+        'action_type': 'function', # Especifica que tipo de accion es
+        'function': main.procesar_calendario,    # Nombre de la funcion que se ejeuctara en este paso
+    },
 ]
+"""

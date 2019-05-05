@@ -77,45 +77,44 @@ def get_email_pdf_tokens(timeout=15, filter_email_from='danielxdad@gmail.com'):
     # Se selecciona el mailbox INBOX para solo lectura
     M.select(mailbox='INBOX', readonly=True)
 
-    for _ in range(timeout // 3):
-        # typ, data = M.uid('SEARCH', None, 'ALL')
+    for _ in range(timeout // 5):
         typ, data = M.uid('SEARCH', None, '(FROM "{}")'.format(filter_email_from))
         if not data[0].split():
-            # print('[INFO] - Sleeping...')
-            time.sleep(3)
+            time.sleep(5)
             continue
 
         for uid in data[0].split():
             uid = uid.decode('utf-8')
 
             if uid in procesed_uids:
-                print('[INFO] - El email {} ya ha sido procesado, se ignora.'.format(uid))
+                print('[INFO] - El email "{}" ya ha sido procesado, se ignora.'.format(uid))
                 continue
 
             print('[INFO] - Obteniendo email "{}"...'.format(uid))
             typ, data = M.uid('FETCH', uid, '(RFC822)')
+            
+            # Agregamos el UID de correo a fichero de registro de UIDs procesados
+            procesed_uids.append(uid.strip())
+            with open(config.FILE_EMAIL_UID_REG, 'a') as fd:
+                fd.write('%s\n' % uid)
+            
             if typ != 'OK':
                 print('[ERROR] - Error obteniendo email {}: {}'.format(uid, data))
                 break
             else:
-                # Agregamos el UID de correo a fichero de registro de UIDs procesados
-                with open(config.FILE_EMAIL_UID_REG, 'a') as fd:
-                    fd.write('%s\n' % uid)
-                
                 message = parse_email(data[0])
                 subject = decode_header(message['Subject'])
                 if not filter_email_message(message, filter_email_from):
                     print('[INFO] - El email {} - "{}" no ha pasado el filtro de mensajes.'.format(uid, subject))
                 else:
-                    print('[INFO] - OK', uid, subject)
-                    # Itineramos por los adjuntos del correo y si tiene el pdf "CodigoSeguridadCita.pdf"
-                    # devolvemos el mensaje
+                    # Itineramos por los adjuntos del correo y si tiene el pdf "CodigoSeguridadCita.pdf" y devolvemos el mensaje
                     for subpart in message.iter_attachments():
                         attach_file_name, attach_content_type = subpart.get_filename(''), subpart.get_content_type()
                         if attach_file_name == 'CodigoSeguridadCita.pdf' and attach_content_type == 'application/pdf':
+                            M.close()
+                            M.logout()
+                            print('[INFO] - OK email codigo seguridad & token:', uid, subject)
                             return message
-
-        break
 
     M.close()
     M.logout()

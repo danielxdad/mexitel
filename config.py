@@ -21,8 +21,6 @@ if not os.path.exists(CHROME_DRIVER_PATH):
     print('ChromeDriver no existe en el path "{}"'.format(CHROME_DRIVER_PATH))
     exit()
 
-FIREFOX_PROFILE_PATH = os.path.join(BASE_DIR, 'firefox_profile.default/')
-
 PDF_TMP_DIR = os.path.join(BASE_DIR, 'pdf/')
 PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
 

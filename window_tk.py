@@ -38,6 +38,6 @@ class Application(tk.Frame):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    app = Application(master=root,imagen='pdf/images/page0-7.png', text_ocr='IOguhsm3')
+    app = Application(master=root,imagen='pdf/images/tesseract_image.png', text_ocr='IOguhsm3')
     app.mainloop()
     print(app.text_ocr)

@@ -14,7 +14,7 @@ with warnings.catch_warnings():
     import pytesseract
     import matplotlib.pyplot as plt
 
-from config import PDF_TMP_IMAGES_DIR
+import config
 
 
 def extract_pdf_images(doc, page=0):
@@ -25,11 +25,11 @@ def extract_pdf_images(doc, page=0):
     :return: String con codigo de seguridad o dispara una excepcion en caso de error
     """
     # Si no existe el dictorio temporal para las imagenes, lo creamos
-    if not os.path.exists(PDF_TMP_IMAGES_DIR):
-        os.makedirs(PDF_TMP_IMAGES_DIR)
+    if not os.path.exists(config.PDF_TMP_IMAGES_DIR):
+        os.makedirs(config.PDF_TMP_IMAGES_DIR)
 
     # Eliminamos todas las imagenes PNG contenidas en el 
-    for pn in pathlib.Path(PDF_TMP_IMAGES_DIR).glob('*.png'):
+    for pn in pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'):
         pn.unlink()
     
     # Extraemos las imagenes en formato PNG
@@ -50,7 +50,7 @@ def extract_pdf_images(doc, page=0):
 
         # Convertimos la imagen a escala de grises
         pix = fitz.Pixmap(fitz.csGRAY, fitz.Pixmap(doc, xref))
-        pix.writePNG(os.path.join(PDF_TMP_IMAGES_DIR, "page%s-%s.png" % (0, xref)))
+        pix.writePNG(os.path.join(config.PDF_TMP_IMAGES_DIR, "page%s-%s.png" % (0, xref)))
         pix = None
         imagen_found_count += 1
     
@@ -58,15 +58,15 @@ def extract_pdf_images(doc, page=0):
 
     # Leemos las dos imagenes que deben tener el codigo
     image_list = []
-    for pn in pathlib.Path(PDF_TMP_IMAGES_DIR).glob('*.png'):
+    for pn in pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'):
         with pn.open('rb') as fd:
             image_list.append(plt.imread(fd, format='png').astype(np.uint8))
     
     assert image_list[0].shape == image_list[1].shape, 'Las dimensiones de las imagenes de codigo de seguridad son diferentes'
     
     xor_image_arr = np.bitwise_xor(image_list[0], image_list[1]).astype(np.uint8)
-    # output_image_file = os.path.join(PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
-    # plt.imsave(output_image_file, xor_image_arr)
+    output_image_file = os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
+    plt.imsave(output_image_file, xor_image_arr)
     # with Image.open(output_image_file) as fd:
     codigo_seg = pytesseract.image_to_string(xor_image_arr, config='-psm 8').strip()
     if not re.match('^[a-zA-Z0-9]{8}$', codigo_seg):

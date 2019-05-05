@@ -293,6 +293,7 @@ def calendar(driver, mes, anio):
             time.sleep(0.5)
         
         # TODO: Mejorar comprobacion de este modal ya que puede demorarse en salir debido a carga de la pagina
+        time.sleep(3)
         try:
             # Testeamos la aparacicion del modal "Has concluido tu tramite", ID: "#j_idt427"
             el_modal = driver.find_element_by_id('j_idt427')

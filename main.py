@@ -322,9 +322,11 @@ def main():
     driver = init_driver_instance()
 
     # Accedemos a la pagina de login
-    login(driver)
-    while driver.execute_script('return window.document.readyState;') != 'complete':
-        time.sleep(0.5)
+    with wait_for_page_load(driver):
+        login(driver)
+    
+    # while driver.execute_script('return window.document.readyState;') != 'complete':
+        # time.sleep(1)
 
     for index, row in df.iterrows():
         if row['procesado'].lower() != 'no':

@@ -67,10 +67,9 @@ def extract_pdf_images(doc, page=0):
     xor_image_arr = np.bitwise_xor(image_list[0], image_list[1]).astype(np.uint8)
     output_image_file = os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
     plt.imsave(output_image_file, xor_image_arr)
-    # with Image.open(output_image_file) as fd:
     codigo_seg = pytesseract.image_to_string(xor_image_arr, config='-psm 8').strip()
-    if not re.match('^[a-zA-Z0-9]{8}$', codigo_seg):
-        raise ValueError('El codigo de seguridad es invalido: %s' % repr(codigo_seg))
+    # if not re.match('^[a-zA-Z0-9]{8}$', codigo_seg):
+        # raise ValueError('El codigo de seguridad es invalido: %s' % repr(codigo_seg))
     
     # fig, axs = plt.subplots(3, 1)
     # images = image_list + [xor_image_arr]

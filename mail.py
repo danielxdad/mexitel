@@ -47,7 +47,7 @@ def filter_email_message(message, filter_email_from):
     return message['From'].find(filter_email_from) != -1 and decode_header(message['Subject']).find(message_subject) != -1
 
 
-def get_email_pdf_tokens(timeout=15, filter_email_from='danielxdad@gmail.com'):
+def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
     """
     Obtiene el email con el PDF con el Token y Codigo de seguridad para validacion de cita en el calendario de MEXITEL.
     :param timeout: Tiempo de espera para obtencion de correos
@@ -77,11 +77,12 @@ def get_email_pdf_tokens(timeout=15, filter_email_from='danielxdad@gmail.com'):
     # Se selecciona el mailbox INBOX para solo lectura
     M.select(mailbox='INBOX', readonly=True)
 
-    for _ in range(timeout // 5):
+    for _ in range(timeout // 10):
         typ, data = M.uid('SEARCH', None, '(FROM "{}")'.format(filter_email_from))
-        if not data[0].split():
-            time.sleep(5)
-            continue
+        
+        if typ != 'OK':
+            print('[ERROR] - Error obteniendo lista de emails: {}'.format(uid, data))
+            break
 
         for uid in data[0].split():
             uid = uid.decode('utf-8')
@@ -115,6 +116,8 @@ def get_email_pdf_tokens(timeout=15, filter_email_from='danielxdad@gmail.com'):
                             M.logout()
                             print('[INFO] - OK email codigo seguridad & token:', uid, subject)
                             return message
+        
+        time.sleep(10)
 
     M.close()
     M.logout()
@@ -157,7 +160,7 @@ if __name__ == '__main__':
             pdf_file_path = save_pdf_from_message(message)
             print(pdf_file_path)
         """
-        message = get_email_pdf_tokens(timeout=60, filter_email_from='citas_sre@sre.gob.mx')
+        message = get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx')
         if message:
             from pdf import extract_pdf_tokens
             pdf_file_path = save_pdf_from_message(message)

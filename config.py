@@ -6,13 +6,20 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 import main
+from config_reader import read_config
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+CONFIG_FILE = os.path.join(BASE_DIR, 'config.ini')
+
+if not os.path.exists(CONFIG_FILE):
+    print('[ERROR] - El fichero de configuracion "config.ini" no existe.')
+    exit(0)
+
 LOGIN_URL = 'https://mexitel.sre.gob.mx/citas.webportal/pages/public/login/login.jsf'
-USERNAME = 'danielxdad@gmail.com'
-PASSWORD = 'Xdad88121700264/*-'
+USERNAME = read_config(CONFIG_FILE, 'PAGE').get('username')
+PASSWORD = read_config(CONFIG_FILE, 'PAGE').get('password')
 LOGIN_FIELD_USERNAME_ID = 'j_username'
 LOGIN_FIELD_PASSWORD_ID = 'j_password'
 
@@ -26,8 +33,8 @@ PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
 
 # Email account config
 EMAIL_HOST = 'imap.gmail.com'
-EMAIL_ACCOUNT = 'danielxdad@gmail.com'
-EMAIL_PASSWORD = 'xdad641489542976'
+EMAIL_ACCOUNT = read_config(CONFIG_FILE, 'EMAIL').get('username')
+EMAIL_PASSWORD = read_config(CONFIG_FILE, 'EMAIL').get('password')
 
 # Fichero para registro de UIDs de email obtenidos desde servidor IMAP para evitar doble procesamiento.
 FILE_EMAIL_UID_REG = os.path.join(BASE_DIR, 'email_uid_register.txt')

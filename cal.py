@@ -213,11 +213,13 @@ def calendar(driver, mes, anio):
     a_element = random.choice(a_tags_elements)
     driver.execute_script("window.scrollTo(0, %d);" % (a_element.location['y'] - 200))
     a_element.click()
-    time.sleep(0.5)
+    time.sleep(0.8)
     check_procesing_modal(driver)
+    time.sleep(1)
 
     # Obtenemos email con PDF con el Codigo de seguridad y Token, esperamos 90 segundos a su llegada.
-    message = mail.get_email_pdf_tokens(timeout=90, filter_email_from='citas_sre@sre.gob.mx')
+    print('[INFO] - Obteniendo email con PDF de Codigo de seguridad y Token...')
+    message = mail.get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx')
     if message:
         pdf_file_path = mail.save_pdf_from_message(message)
         codigo_seg, text_token = pdf.extract_pdf_tokens(pdf_file_path)

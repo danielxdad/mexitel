@@ -54,16 +54,6 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
     :param filter_email_from: Correo remitente utilizado en filtrado de los correos
     :return: Instancia email.message.EmailMessage con el PDF o None en caso de no haberlo encontrado
     """
-    # Nos conectamos al servidor IMAP
-    try:
-        M = imaplib.IMAP4_SSL(config.EMAIL_HOST)
-    except socket.timeout:
-        print('[ERROR] - Tiempo de espera agatado conectando con el servidor de correo.')
-        return None
-    except socket.error as err:
-        print('[ERROR] - Error conectando con el servidor de correo: {}'.format(err))
-        return None
-
     # Leemos los UIDs de los correos que ya han sido procesados anteriormente
     procesed_uids = []
     with open(config.FILE_EMAIL_UID_REG, 'r') as fd:
@@ -72,12 +62,22 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
                 break
             procesed_uids.append(line.strip())
     
-    # Nos logeamos
-    M.login(config.EMAIL_ACCOUNT, config.EMAIL_PASSWORD)
-    # Se selecciona el mailbox INBOX para solo lectura
-    M.select(mailbox='INBOX', readonly=True)
-
+    # Nos conectamos al servidor IMAP
     for _ in range(timeout // 10):
+        try:
+            M = imaplib.IMAP4_SSL(config.EMAIL_HOST)
+        except socket.timeout:
+            print('[ERROR] - Tiempo de espera agatado conectando con el servidor de correo.')
+            return None
+        except socket.error as err:
+            print('[ERROR] - Error conectando con el servidor de correo: {}'.format(err))
+            return None
+
+        # Nos logeamos
+        M.login(config.EMAIL_ACCOUNT, config.EMAIL_PASSWORD)
+        # Se selecciona el mailbox INBOX para solo lectura
+        M.select(mailbox='INBOX', readonly=True)
+    
         typ, data = M.uid('SEARCH', None, '(FROM "{}")'.format(filter_email_from))
         
         if typ != 'OK':
@@ -117,10 +117,12 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
                             print('[INFO] - OK email codigo seguridad & token:', uid, subject)
                             return message
         
-        time.sleep(10)
+        M.close()
+        M.logout()
 
-    M.close()
-    M.logout()
+        print('[INFO] - Esperando por arrivo de correo...')
+        time.sleep(5)
+    
     return None
 
 

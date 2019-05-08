@@ -325,13 +325,13 @@ def main():
     with wait_for_page_load(driver):
         login(driver)
     
-    # while driver.execute_script('return window.document.readyState;') != 'complete':
-        # time.sleep(1)
-
     for index, row in df.iterrows():
         if row['procesado'].lower() != 'no':
             continue
 
+        while driver.execute_script('return window.document.readyState;') != 'complete':
+            time.sleep(1)
+        
         # Testeamos la url actual y el titulo de la pagina
         if not test_url_page_title(driver, 
             'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',

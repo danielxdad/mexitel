@@ -63,7 +63,8 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
             procesed_uids.append(line.strip())
     
     # Nos conectamos al servidor IMAP
-    for _ in range(timeout // 10):
+    timeout_interval = 3
+    for _ in range(timeout // timeout_interval):
         try:
             M = imaplib.IMAP4_SSL(config.EMAIL_HOST)
         except socket.timeout:
@@ -81,7 +82,7 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
         typ, data = M.uid('SEARCH', None, '(FROM "{}")'.format(filter_email_from))
         
         if typ != 'OK':
-            print('[ERROR] - Error obteniendo lista de emails: {}'.format(uid, data))
+            print('[ERROR] - Error obteniendo lista de emails: {}'.format(data))
             break
 
         for uid in data[0].split():
@@ -121,7 +122,7 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
         M.logout()
 
         print('[INFO] - Esperando por arrivo de correo...')
-        time.sleep(5)
+        time.sleep(timeout_interval)
     
     return None
 

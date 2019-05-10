@@ -8,8 +8,9 @@ import tkinter as tk
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, \
-    MoveTargetOutOfBoundsException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, MoveTargetOutOfBoundsException
 
 import config
 import mail
@@ -143,8 +144,12 @@ def calendar(driver, mes, anio):
             'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoModerado',
             'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad']
         
+        wait = WebDriverWait(driver, 1)
         for css_sel in a_tags_css_selectors:
-            a_tags_elements += driver.find_elements_by_css_selector(css_sel)
+            try:
+                a_tags_elements += wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel)))
+            except TimeoutException:
+                pass
         
         # Si no se encontraron tags A para dias con disponibildad en el calendario, 
         # damos click en el boton "Mes" para refrescar el calendario en el mes actual seleccionado
@@ -165,8 +170,8 @@ def calendar(driver, mes, anio):
         else:
             break
         
-        # Hacemos una espera de 15 segundos entre cada refresqueo del calendario
-        time.sleep(15)
+        # Hacemos una espera de 10 segundos entre cada refresqueo del calendario
+        time.sleep(10)
             
     # Si no se encontraron tags A para dias con disponibildad en el calendario
     if not a_tags_elements:
@@ -183,25 +188,31 @@ def calendar(driver, mes, anio):
     a_element.click()
     time.sleep(0.5)
     check_procesing_modal(driver)
+    time.sleep(0.5)
 
     # Aqui estamos en el calendario en modo Agenta/Dia
-    el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
-    if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
-        return False
+    # el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+    # if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
+        # return False
 
     # Testeamos el titulo(H2) del calendario con formato: "Mayo 23, 2019"
-    title = el_cal_header.text.strip()
-    if not re.match(r'[\w]{4,10} [\d]{1,2}, [\d]{4}', title):
-        print('[ERROR] - El valor del titulo de calendario no corresponde con el formato de dias: {}'.format(title))
-        return False
+    # title = el_cal_header.text.strip()
+    # if not re.match(r'[\w]{4,10} [\d]{1,2}, [\d]{4}', title):
+        # print('[ERROR] - El valor del titulo de calendario no corresponde con el formato de dias: {}'.format(title))
+        # return False
 
     # Buscamos los tags A que especifica la hora de disponibilidad de la cita: "9:00 - 7 disponibles"
-    a_tags_css_selectors = ['a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad.fc-short', 
-        'a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoModerado.fc-short', 
-        'a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoTotalDisponibilidad.fc-short']
+    # a_tags_css_selectors = ['a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad.fc-short', 
+        # 'a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoModerado.fc-short', 
+        # 'a.fc-time-grid-event.fc-event.fc-start.fc-end.rangoTotalDisponibilidad.fc-short']
+    a_tags_css_selectors = ['a.fc-time-grid-event.fc-event.fc-start.fc-end']
     a_tags_elements = []
+    wait = WebDriverWait(driver, 1)
     for css_sel in a_tags_css_selectors:
-        a_tags_elements += driver.find_elements_by_css_selector(css_sel)
+        try:
+            a_tags_elements += wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel)))
+        except TimeoutException:
+            pass
 
     # Si no se encontraron tags A para dias con disponibildad en el calendario
     if not a_tags_elements:
@@ -213,9 +224,8 @@ def calendar(driver, mes, anio):
     a_element = random.choice(a_tags_elements)
     driver.execute_script("window.scrollTo(0, %d);" % (a_element.location['y'] - 200))
     a_element.click()
-    time.sleep(0.8)
+    time.sleep(0.7)
     check_procesing_modal(driver)
-    time.sleep(1)
 
     # Obtenemos email con PDF con el Codigo de seguridad y Token, esperamos 90 segundos a su llegada.
     print('[INFO] - Obteniendo email con PDF de Codigo de seguridad y Token...')

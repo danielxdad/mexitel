@@ -87,6 +87,7 @@ def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
             fp.set_preference("network.proxy.socks_version", 5)
         fp.update_preferences()
         driver = webdriver.Firefox(firefox_profile=fp)
+        driver.install_addon(os.path.join(config.BASE_DIR, 'disconnect-5.18.27-fx.xpi'), True)
     elif webdriver_type == 'chrome':
         driver = webdriver.Chrome(config.CHROME_DRIVER_PATH)
     else:

@@ -64,7 +64,7 @@ def test_url_page_title(driver, url, title):
     return pdu_tuple == pu_tuple and driver.title.lower() == title.lower()
 
 
-def init_driver_instance(webdriver_type='firefox', implicitly_wait=5):
+def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
     """
     Inicia el manejador de Chrome
     @param implicitly_wait: Tiempo de espera para carga y busqueda de elementos en las paginas.
@@ -172,10 +172,6 @@ def check_procesing_modal(driver):
     return None
     """
     # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
-    element = None
-    # time.sleep(0.8)
-    # for _ in range(10):
-    # time.sleep(0.4)
     try:
         element = driver.find_element_by_id('j_idt24')
     except NoSuchElementException:
@@ -183,7 +179,6 @@ def check_procesing_modal(driver):
     else:
         while element.is_displayed():
             time.sleep(0.5)
-    # time.sleep(0.8)
 
 
 def exithandler():
@@ -338,6 +333,9 @@ def main():
             'Citas SRE'):
             print('[ERROR] - No se pudo acceder a la pagina de citas.')
             return -1
+
+        # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
+        driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
 
         print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
         for action_index, action in enumerate(config.ACTIONS_LIST):

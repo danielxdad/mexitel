@@ -202,9 +202,7 @@ def action_ask_completation_captcha(driver=None, args=None):
     :param args: Argumentos pasado en la linea de comandos
     :return: Boolean
     """
-    if input('[QUEST] - ¿Se ha completado el Captcha de Google? (si/no): ').lower() == 'si':
-        return True
-    return False
+    return input('[QUEST] - ¿Haz completado el Captcha de Google? (si/no): ').lower() in ['si', 's']
 
 
 def execute_action_navigator(action, row):

@@ -43,7 +43,8 @@ class wait_for_page_load(object):
 
     def page_has_loaded(self):
         new_page = self.browser.find_element_by_tag_name('html')
-        return new_page.id != self.old_page.id
+        ready_state = self.browser.execute_script('return window.document.readyState;')
+        return new_page.id != self.old_page.id and ready_state == 'complete'
 
     def __exit__(self, *_):
         wait_for(self.page_has_loaded, self.timeout)
@@ -114,7 +115,6 @@ def nav_to_page(driver, url):
         raise ValueError('No se ha especificado un dominio en la URL: {}'.format(repr(url)))
 
     with wait_for_page_load(driver):
-        # driver.get('https://www.google.com/search?%s' % urllib.urlencode({'q': keyword.keyword}))
         driver.get(url)
 
 
@@ -327,9 +327,6 @@ def main():
         if row['procesado'].lower() != 'no':
             continue
 
-        while driver.execute_script('return window.document.readyState;') != 'complete':
-            time.sleep(1)
-        
         # Testeamos la url actual y el titulo de la pagina
         if not test_url_page_title(driver, 
             'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',

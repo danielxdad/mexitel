@@ -121,8 +121,8 @@ def nav_to_page(driver, url):
 def login(driver):
     """
     Funcion para logearse en la pagina
-    @param driver: Instancia de driver de navegador
-    @return bool: Devuelve True o False
+    :param driver: Instancia de driver de navegador
+    :return bool: Devuelve True o False
     """
     try:
         nav_to_page(driver, config.LOGIN_URL)
@@ -164,6 +164,8 @@ def login(driver):
         return False
     else:
         element.click()
+    
+    return True
 
 
 def check_procesing_modal(driver):
@@ -317,7 +319,9 @@ def main():
 
     # Accedemos a la pagina de login
     with wait_for_page_load(driver):
-        login(driver)
+        if login(driver) is False:
+            # Si no nos pudimos logear salimos de la app
+            return -1
     
     for index, row in df.iterrows():
         if row['procesado'].lower() != 'no':

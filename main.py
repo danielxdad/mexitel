@@ -79,6 +79,8 @@ def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
         fp.set_preference("intl.accept_languages", 'es-ES, es, en-US, en')
         # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
         fp.set_preference("security.mixed_content.block_active_content", False)
+        fp.set_preference("network.http.max-persistent-connections-per-server", 4)
+        fp.set_preference("network.tcp.keepalive.idle_time", 3600)
         # Si se ha especificado el parametro --tor en la linea de comandos
         if args.tor:
             # Establecemos el Proxy SOCKSv5 en el navegador

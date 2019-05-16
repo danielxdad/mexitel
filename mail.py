@@ -75,7 +75,13 @@ def get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx'):
             return None
 
         # Nos logeamos
-        M.login(config.EMAIL_ACCOUNT, config.EMAIL_PASSWORD)
+        try:
+            M.login(config.EMAIL_ACCOUNT, config.EMAIL_PASSWORD)
+        except imaplib.IMAP4.error as err:
+            M.logout()
+            print('[ERROR] - Error al logearse en servidor IMAP: "{}"'.format(err))
+            return None
+        
         # Se selecciona el mailbox INBOX para solo lectura
         M.select(mailbox='INBOX', readonly=True)
     

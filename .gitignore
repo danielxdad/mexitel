@@ -17,4 +17,4 @@ geckodriver.log
 *.swp
 pdf/*
 email_uid_register.txt
-
+*.bak

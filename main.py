@@ -68,8 +68,8 @@ def test_url_page_title(driver, url, title):
 def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
     """
     Inicia el manejador de Chrome
-    @param implicitly_wait: Tiempo de espera para carga y busqueda de elementos en las paginas.
-    @return: Instancia de selenium.webdriver.Chrome
+    :param implicitly_wait: Tiempo de espera para carga y busqueda de elementos en las paginas.
+    :return: Instancia de webdriver (Firefox o Chrome)
     """
     global args
 
@@ -80,7 +80,7 @@ def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
         # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
         fp.set_preference("security.mixed_content.block_active_content", False)
         fp.set_preference("network.http.max-persistent-connections-per-server", 4)
-        fp.set_preference("network.tcp.keepalive.idle_time", 3600)
+        fp.set_preference("network.tcp.keepalive.idle_time", 7200)
         # Si se ha especificado el parametro --tor en la linea de comandos
         if args.tor:
             # Establecemos el Proxy SOCKSv5 en el navegador
@@ -296,10 +296,11 @@ def main():
     """
     global driver, args
     parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
-    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario')
-    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario')
-    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5')
-    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes')
+    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
+    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario.')
+    parser.add_argument('--visas', action='store_true', help='Utilizar lista de acciones para Visas.')
+    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5.')
+    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes.')
     args = parser.parse_args()
 
     excel_file = pathlib.Path(args.file[0])
@@ -317,6 +318,11 @@ def main():
         }
     )
 
+    if args.visas:
+        print('[INFO] - Utilizando cadena de acciones de "VISAS".')
+    else:
+        print('[INFO] - Utilizando cadena de acciones de "CERTIFICADOS, LEGALIZACIONES Y VISADOS".')
+    
     driver = init_driver_instance()
 
     # Accedemos a la pagina de login
@@ -340,7 +346,9 @@ def main():
         driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
 
         print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
-        for action_index, action in enumerate(config.ACTIONS_LIST):
+
+        action_list = config.ACTIONS_LIST_VISAS if args.visas else config.ACTIONS_LIST_CERT_LEG_VIS
+        for action_index, action in enumerate(action_list):
             if action['action_type'] == 'navigator':
                 if not execute_action_navigator(action, row):
                     return -1

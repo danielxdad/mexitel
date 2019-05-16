@@ -44,7 +44,7 @@ if not os.path.exists(FILE_EMAIL_UID_REG):
 
 # Acciones
 # CERTIFICADOS, LEGALIZACIONES Y VISADOS
-ACTIONS_LIST = [
+ACTIONS_LIST_CERT_LEG_VIS = [
     {
         'action_type': 'navigator', # Especifica que tipo de accion es
         'find_by': By.ID,
@@ -227,9 +227,9 @@ ACTIONS_LIST = [
         'function': main.procesar_calendario,    # Nombre de la funcion que se ejeuctara en este paso
     },
 ]
-"""
+
 # Visas
-ACTIONS_LIST = [
+ACTIONS_LIST_VISAS = [
     {
         'action_type': 'navigator', # Especifica que tipo de accion es
         'find_by': By.ID,
@@ -457,4 +457,3 @@ ACTIONS_LIST = [
         'function': main.procesar_calendario,    # Nombre de la funcion que se ejeuctara en este paso
     },
 ]
-"""

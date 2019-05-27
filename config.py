@@ -55,7 +55,6 @@ ACTIONS_LIST_CERT_LEG_VIS = [
         'actions_chain': [
             ('click', ['<!-element-!>']),  # Damos un click en el elemento
             ('pause', [0.5]), # Pause de 0.5 segundos
-            # ('<!-check-procesing-modal-!>', []),
             ('send_keys', ['CUBA']), # Enviamos los datos de la columna pais (<!-data-!>)
             ('send_keys', [Keys.ENTER]), # Damos enter
         ]

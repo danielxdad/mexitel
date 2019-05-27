@@ -12,11 +12,12 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, \
-    MoveTargetOutOfBoundsException
+    MoveTargetOutOfBoundsException, JavascriptException
 
 import config
 import cal
 from cal import MESES, ANIOS, calendar
+import utils
 
 driver = None   # Variable global para WebDriver handler
 args = None     # Variable global para parametros de la linea de comandos
@@ -29,7 +30,7 @@ def wait_for(condition_function, timeout=30):
         if condition_function():
             return True
         else:
-            time.sleep(0.5)
+            time.sleep(1)
     raise TimeoutException()
 
 
@@ -159,13 +160,14 @@ def login(driver):
         element.send_keys(config.PASSWORD)
     
     # Boton "Ingresar"
-    try:
-        element = driver.find_element(By.ID, 'btnLoginII')
-    except NoSuchElementException:
-        print('[ERROR] - No se puede encontrar el elemento "btnLoginII" en la pagina de login')
-        return False
-    else:
-        element.click()
+    with wait_for_page_load(driver):
+        try:
+            element = driver.find_element(By.ID, 'btnLoginII')
+        except NoSuchElementException:
+            print('[ERROR] - No se puede encontrar el elemento "btnLoginII" en la pagina de login')
+            return False
+        else:
+            element.click()
     
     return True
 
@@ -199,25 +201,21 @@ def exithandler():
             pass
 
 
-def action_ask_completation_captcha(driver=None, args=None):
-    """
-    Funcion que pregunta en la consola si se ha completado el captcha de Google. Se invocara desde la lista de acciones.
-    :param driver: Instancia de driver de navegador
-    :param args: Argumentos pasado en la linea de comandos
-    :return: Boolean
-    """
-    return input('[QUEST] - ¿Haz completado el Captcha de Google? (si/no): ').lower() in ['si', 's']
-
-
-def execute_action_navigator(action, row):
+def execute_action_navigator(driver, action, row):
     """
     Ejecuta una accion en el navegador
+    :param driver: Instancia de WebDriver
     :param action: Diccionario que describe la accion a ejecutar
     :param row: Registro(row) del DataFrame con informacion de cliente
     :return: Boolean True o False
     """
     # Hacemos un scroll al elemento para mostrarlo en el ViewPort
-    driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
+    try:
+        driver.execute_script('window.document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
+    except JavascriptException as error:
+        print('[ERROR] - JS exception en mail.execute_action_navigator: {} - {}'.format(error, action['selector']))
+        return False
+    
     time.sleep(0.1)
 
     # Obtenemos el elemento por el metodo especificado en la configuracion
@@ -280,14 +278,41 @@ def execute_action_navigator(action, row):
     return True
 
 
-def procesar_calendario(driver=None, args=None):
+def action_ask_completation_captcha(driver=None, *args, **kwargs):
+    """
+    Funcion que pregunta en la consola si se ha completado el captcha de Google. Se invocara desde la lista de acciones.
+    :param driver: Instancia de driver de navegador
+    :param args: Argumentos pasado en la linea de comandos
+    :return: Boolean
+    """
+    return input('[QUEST] - ¿Haz completado el Captcha de Google? (si/no): ').lower() in ['si', 's']
+
+
+def procesar_calendario(driver=None, *args, **kwargs):
     """
     Funcion que invoca el procesamiento del calendario
     :param driver: Instancia de driver de navegador
     :param args: Argumentos pasado en la linea de comandos
     :return: Boolean
     """
-    return cal.calendar(driver, args.mes[0], args.anio[0])
+    mes = kwargs.get('mes')
+    anio = kwargs.get('anio')
+    action_list = kwargs.get('action_list')
+    row = kwargs.get('row')
+    return cal.calendar(driver, mes, anio, action_list, row)
+
+
+def parse_argument():
+    """
+    Parsea los parametros de la linea de comandos
+    """
+    parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
+    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
+    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario.')
+    parser.add_argument('--visas', action='store_true', help='Utilizar lista de acciones para Visas.')
+    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5.')
+    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes.')
+    return parser.parse_args()
 
 
 def main():
@@ -295,13 +320,7 @@ def main():
     Funcion inicial de la app
     """
     global driver, args
-    parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
-    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
-    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario.')
-    parser.add_argument('--visas', action='store_true', help='Utilizar lista de acciones para Visas.')
-    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5.')
-    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes.')
-    args = parser.parse_args()
+    args = parse_argument()
 
     excel_file = pathlib.Path(args.file[0])
     if not excel_file.exists():
@@ -326,11 +345,23 @@ def main():
     driver = init_driver_instance()
 
     # Accedemos a la pagina de login
+    if login(driver) is False:
+        # Si no nos pudimos logear salimos de la app
+        return -1
+
+    # Test relogin
+    """
     with wait_for_page_load(driver):
-        if login(driver) is False:
-            # Si no nos pudimos logear salimos de la app
-            return -1
-    
+        driver.get('https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',)
+    time.sleep(1.5)
+    utils.relogin(driver)
+    with wait_for_page_load(driver):
+        driver.get('https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',)
+    time.sleep(5)
+    input('>>')
+    return 
+    """
+
     for index, row in df.iterrows():
         if row['procesado'].lower() != 'no':
             continue
@@ -340,17 +371,37 @@ def main():
             'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
             'Citas SRE'):
             print('[ERROR] - No se pudo acceder a la pagina de citas.')
+            input('>> ')
             return -1
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
         driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
+
+        # Sobreescritura de funcion "handleAjaxComplete"
+        driver.execute_script("""\
+            window.handleAjaxComplete = (xml, xhr, status, updateHandler) => {
+                session = xml.getElementsByTagName('session-expired');
+                if (session.length > 0){
+                    if(session[0].childNodes[0].nodeValue =='true'){
+                        // PF('sessionStatus').show();
+                    }
+                }else{
+                    window.clearTimeout(sessionTimer);
+                    sessionTimer=window.setTimeout(function(){mostrarModalExpira()},sessionTimeoutSecs*800);
+                    window.clearTimeout(ajaxTimer);
+                    originalHandle(xml, status, xhr, updateHandler);
+                }
+            };
+            console.log('handleAjaxComplete reescrita')
+            //console.log(handleAjaxComplete.toSource())
+        """)
 
         print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
 
         action_list = config.ACTIONS_LIST_VISAS if args.visas else config.ACTIONS_LIST_CERT_LEG_VIS
         for action_index, action in enumerate(action_list):
             if action['action_type'] == 'navigator':
-                if not execute_action_navigator(action, row):
+                if not execute_action_navigator(driver, action, row):
                     return -1
 
             elif action['action_type'] == 'function':
@@ -363,7 +414,7 @@ def main():
                     print('[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d' % action_index)
                     return -1
 
-                if not func(driver, args):
+                if not func(driver, mes=args.mes[0], anio=args.anio[0], action_list=action_list, row=row):
                     print('[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d' % action_index)
                     return -1
 

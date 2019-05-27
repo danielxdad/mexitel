@@ -211,13 +211,14 @@ def calendar(driver, mes, anio, action_list, row):
     a_tags_elements = []
     while not a_tags_elements:
         # TODO: Eliminar esto, es para probar el relogin
-        # print('[INFO] - Cerrando sesion...')
-        # driver.delete_cookie('JSESSIONID')
-        # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx', 
-            # 'path': '/', 
-            # 'value': 'T2hpcfYcS017MNnQn1nyAxWf5LQFyCJnhg7LgT11vtbl2ZHT3ykz!1650797564!947129112',
-        # })
-        # time.sleep(0.5)
+        # if random.random() > 0.5:
+            # print('[INFO] - Emulando cierre de sesion...')
+            # driver.delete_cookie('JSESSIONID')
+            # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx', 
+                # 'path': '/', 
+                # 'value': 'T2hpcfYcS017MNnQn1nyAxWf5LQFyCJnhg7LgT11vtbl2ZHT3ykz!1650797564!947129112',
+            # })
+            # time.sleep(0.5)
         # ///////////////////////////////////////////////////////////////////////////////////////////
         
         # Se necesita hacer relogin
@@ -249,8 +250,11 @@ def calendar(driver, mes, anio, action_list, row):
         # damos click en el boton "Mes" para refrescar el calendario en el mes actual seleccionado
         # para ver si ya abrieron las citas
         if not a_tags_elements:
-            # Boton Mes, ID: "formRegistroCitaExtranjero:Month"
+            # Hacemos una espera de 15 segundos entre cada refresqueo del calendario
+            time.sleep(15)
+
             try:
+                # Boton Mes, ID: "formRegistroCitaExtranjero:Month"
                 el = driver.find_element_by_id('formRegistroCitaExtranjero:Month')
             except NoSuchElementException:
                 print('[ERROR] - No existe el boton "Mes" en el calendario.')
@@ -260,12 +264,8 @@ def calendar(driver, mes, anio, action_list, row):
                 el.click()
                 time.sleep(0.5)
                 check_procesing_modal(driver)
-                time.sleep(0.8)
         else:
             break
-        
-        # Hacemos una espera de 10 segundos entre cada refresqueo del calendario
-        time.sleep(15)
             
     # Si no se encontraron tags A para dias con disponibildad en el calendario
     if not a_tags_elements:

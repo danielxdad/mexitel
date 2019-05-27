@@ -11,11 +11,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, MoveTargetOutOfBoundsException
+from selenium.webdriver.common.keys import Keys
 
 import config
 import mail
 import pdf
 import window_tk
+import utils
 
 
 MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 
@@ -80,6 +82,10 @@ def _go_to_month(driver, mes, anio):
     anio_index = ANIOS.index(anio)
 
     while hy_index != anio_index or hm_index != mes_index:
+        el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+        if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
+            return False
+
         # Si el anio en que esta el calendario es menor que el especificado
         if hy_index < anio_index:
             el_cal_button_forward.click()   # Damos click en el boton Adelante
@@ -103,6 +109,10 @@ def _go_to_month(driver, mes, anio):
             else:
                 return True
         
+        el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+        if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
+            return False
+        
         # Volvemos a coger los valores de Mes/Anio del calendario
         header_month, header_year = el_cal_header.text.strip().lower().split(' ')
         try:
@@ -121,7 +131,72 @@ def _go_to_month(driver, mes, anio):
     return True
 
 
-def calendar(driver, mes, anio):
+def refill_form_citas(driver, action_list, row):
+    """
+    Vuelve al llenar el formulario de los datos despues del relogin.
+    :param driver: Instancia de WebDriver
+    :param action_list: Lista de acciones a ejecutar
+    :param row: Fila(Serie) de DataFrame con datos de cliente
+    :return: Boolean 
+    """
+    from main import execute_action_navigator, procesar_calendario, parse_argument
+
+    args = parse_argument()
+
+    # TODO: Antes de rellenar el form, hay que resetear el formulario y rehabilitar todos los campos
+    # Solo con cambiar el pais a por ejemplo COLOMBIA ya se resetea el formulario
+    action = {
+        'action_type': 'navigator',
+        'find_by': By.ID,
+        'selector': 'formRegistroCitaExtranjero:selectPais_label',
+        'tag_name': 'label',
+        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
+        'fill_method': 'actions_chain',
+        'actions_chain': [
+            ('click', ['<!-element-!>']),  # Damos un click en el elemento
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('send_keys', ['COLOMBIA']), # Enviamos los datos de la columna pais (<!-data-!>)
+            ('send_keys', [Keys.ENTER]), # Damos enter
+            ('pause', [0.5]), # Pause de 0.5 segundos
+            ('<!-check-procesing-modal-!>', []),
+        ]
+    }
+
+    if not execute_action_navigator(driver, action, row):
+        print('[ERROR] - No se pudo resetear el formulario de datos.')
+        return False
+
+    for action_index, action in enumerate(action_list):
+        if action['action_type'] == 'navigator':
+            if not execute_action_navigator(driver, action, row):
+                return False
+
+        elif action['action_type'] == 'function':
+            if 'function' not in action:
+                print('[ERROR] - La clave "function" no existe en la accion "function", indice: %d' % action_index)
+                return False
+            
+            func = action['function']
+            # Ignoramos la llamada a procesar_calendario que invoca cal.calendar para evitar recursividad.
+            if func == procesar_calendario:
+                continue
+
+            if not callable(func):
+                print('[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d' % action_index)
+                return False
+
+            if not func(driver, mes=args.mes[0], anio=args.anio[0], action_list=action_list, row=row):
+                print('[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d' % action_index)
+                return False
+
+        else:
+            print('[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(action_index + 1, action['action_type']))
+            return False
+    
+    return True
+
+
+def calendar(driver, mes, anio, action_list, row):
     """
     Funcion que hara el trabajo del calendario. 
     :param driver: Instancia de driver de navegador
@@ -130,21 +205,40 @@ def calendar(driver, mes, anio):
     :return: Boolean
     """
     # Importamos esto aqui ;)
-    from main import check_procesing_modal
+    from main import check_procesing_modal, action_ask_completation_captcha
     print('[INFO] - Haciendo la magia del calendario...')
-    
-    # Hacemos un cicho
+
     a_tags_elements = []
     while not a_tags_elements:
+        # TODO: Eliminar esto, es para probar el relogin
+        # print('[INFO] - Cerrando sesion...')
+        # driver.delete_cookie('JSESSIONID')
+        # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx', 
+            # 'path': '/', 
+            # 'value': 'T2hpcfYcS017MNnQn1nyAxWf5LQFyCJnhg7LgT11vtbl2ZHT3ykz!1650797564!947129112',
+        # })
+        # time.sleep(0.5)
+        # ///////////////////////////////////////////////////////////////////////////////////////////
+        
+        # Se necesita hacer relogin
+        if utils.test_need_relogin(driver):
+            if not utils.relogin(driver):
+                print('[ERROR] - No se pudo hacer relogin.')
+                return False
+            else:
+                print('[INFO] - Relogin satifactorio. Rellenando formulario...')
+                if not refill_form_citas(driver, action_list, row):
+                    return False
+
         if not _go_to_month(driver, mes, anio):
             return False
-
+        
         # Buscamos tags A que dice la cantidad de citas disponibles por dia clases css
         a_tags_css_selectors = ['a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoTotalDisponibilidad', 
             'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoModerado',
             'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad']
         
-        wait = WebDriverWait(driver, 1)
+        wait = WebDriverWait(driver, 0.8)
         for css_sel in a_tags_css_selectors:
             try:
                 a_tags_elements += wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel)))
@@ -171,7 +265,7 @@ def calendar(driver, mes, anio):
             break
         
         # Hacemos una espera de 10 segundos entre cada refresqueo del calendario
-        time.sleep(10)
+        time.sleep(15)
             
     # Si no se encontraron tags A para dias con disponibildad en el calendario
     if not a_tags_elements:

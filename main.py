@@ -185,7 +185,7 @@ def check_procesing_modal(driver):
         pass
     else:
         while element.is_displayed():
-            time.sleep(0.5)
+            time.sleep(0.7)
 
 
 def exithandler():
@@ -285,6 +285,15 @@ def action_ask_completation_captcha(driver=None, *args, **kwargs):
     :param args: Argumentos pasado en la linea de comandos
     :return: Boolean
     """
+    for iframe in driver.find_elements_by_tag_name('iframe'):
+        driver.switch_to.frame(iframe)
+        try:
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, });")
+        except JavascriptException as err:
+            print('[ERROR] - JSException en main.action_ask_completation_captcha: {}'.format(err))
+        
+        driver.switch_to.default_content()
+
     return input('[QUEST] - ¿Haz completado el Captcha de Google? (si/no): ').lower() in ['si', 's']
 
 
@@ -373,6 +382,9 @@ def main():
             print('[ERROR] - No se pudo acceder a la pagina de citas.')
             input('>> ')
             return -1
+
+        # Redefinimos la propiedad navigator.webdriver a false
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, });")
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
         driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')

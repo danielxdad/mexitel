@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup as BS
 import config
 
 
-def test_need_relogin(driver, tries=60):
+def test_need_relogin(driver, tries=120):
     """
     Testea si se necesita hacer relogin en la pagina por que la cookie de sesion haya expirado/cerrado.
     :param driver: Instancia de WebDriver

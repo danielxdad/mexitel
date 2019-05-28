@@ -35,7 +35,7 @@ def test_need_relogin(driver, tries=120):
                 allow_redirects=False,
                 timeout=10,
             )
-        except (requests.Timeout, requests.ConnectionError, requests.HTTPError) as error:
+        except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
             print('\n[ERROR] - Error en utils.test_need_relogin: "{}"'.format(error))
             time.sleep(5)
             continue

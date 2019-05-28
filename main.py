@@ -288,9 +288,9 @@ def action_ask_completation_captcha(driver=None, *args, **kwargs):
     for iframe in driver.find_elements_by_tag_name('iframe'):
         driver.switch_to.frame(iframe)
         try:
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, });")
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
         except JavascriptException as err:
-            print('[ERROR] - JSException en main.action_ask_completation_captcha: {}'.format(err))
+            print('[ERROR] - JSException main.action_ask_completation_captcha: {}'.format(err))
         
         driver.switch_to.default_content()
 
@@ -384,7 +384,7 @@ def main():
             return -1
 
         # Redefinimos la propiedad navigator.webdriver a false
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, });")
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
         driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')

@@ -211,7 +211,7 @@ def calendar(driver, mes, anio, action_list, row):
     a_tags_elements = []
     while not a_tags_elements:
         # TODO: Eliminar esto, es para probar el relogin
-        # if random.random() > 0.5:
+        # if random.random() > 0.6:
             # print('[INFO] - Emulando cierre de sesion...')
             # driver.delete_cookie('JSESSIONID')
             # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx', 

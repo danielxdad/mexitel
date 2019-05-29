@@ -50,7 +50,7 @@ def test_need_relogin(driver, tries=120):
     return False
 
 
-def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=60):
+def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
     """
     Hace una peticion post a "https://mexitel.sre.gob.mx/citas.webportal/pages/public/login/j_security_check" 
     para logearse nuevamente sin hacerlo mediante el navegador.

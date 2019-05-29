@@ -69,10 +69,11 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                     'User-Agent': user_agent,
                 },
                 allow_redirects=True,
-                timeout=8,
+                timeout=10,
             )
         except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
             print('\n[ERROR] - Error en relogin, obtencion de pagina de login: "{}"'.format(error))
+            time.sleep(5)
             continue
         else:
             if not resp_get.ok:
@@ -103,10 +104,11 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/public/login/login.jsf',
                     },
                     allow_redirects=False,
-                    timeout=8,
+                    timeout=10,
                 )
             except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
                 print('\n[ERROR] - Error en relogin, peticion POST: "{}"'.format(error))
+                time.sleep(5)
                 continue
             else:
                 print()
@@ -135,10 +137,11 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                             'User-Agent': user_agent,
                         },
                         allow_redirects=True,
-                        timeout=8,
+                        timeout=10,
                     )
                 except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
                     print('[ERROR] - Error en relogin, obteniendo pagina de citas: "{}"'.format(error))
+                    time.sleep(5)
                     continue
                 else:
                     if not resp3.ok:

@@ -12,7 +12,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, \
-    MoveTargetOutOfBoundsException, JavascriptException
+    MoveTargetOutOfBoundsException, JavascriptException, StaleElementReferenceException
 
 import config
 import cal
@@ -218,13 +218,6 @@ def execute_action_navigator(driver, action, row):
     
     time.sleep(0.1)
 
-    # Obtenemos el elemento por el metodo especificado en la configuracion
-    try:
-        element = driver.find_element(action['find_by'], action['selector'])
-    except NoSuchElementException:
-        print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
-        return False
-
     data_source, data_field = action['data']
     if data_source == 'dataframe' and data_field not in row:
         print('[ERROR] - La columna "{}" no existe en el DataFrame.'.format(data_field))
@@ -234,6 +227,13 @@ def execute_action_navigator(driver, action, row):
     if action['fill_method'] == 'actions_chain' and len(action['actions_chain']):
         action_chain = ActionChains(driver)
         for ac in action['actions_chain']:
+            # Obtenemos el elemento por el metodo especificado en la configuracion
+            try:
+                element = driver.find_element(action['find_by'], action['selector'])
+            except NoSuchElementException:
+                print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
+                return False
+
             params = []
             for p in ac[1]:
                 if p == '<!-data-!>':
@@ -266,11 +266,20 @@ def execute_action_navigator(driver, action, row):
                 eval('action_chain.{}(*params)'.format(ac[0]), None, 
                     {'action_chain': action_chain, 'params': params, 'element': element})
         
+        # Obtenemos el elemento por el metodo especificado en la configuracion
+        try:
+            element = driver.find_element(action['find_by'], action['selector'])
+        except NoSuchElementException:
+            print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
+            return False
+
         try:
             eval('action_chain.perform()', None, {'action_chain': action_chain, 'element': element})
         except MoveTargetOutOfBoundsException:
             print('[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(action['selector']))
             return False
+        except StaleElementReferenceException as err:
+            print('[ERROR] - Error de referencia expirada: {}.'.format(err))
         else:
             # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
             check_procesing_modal(driver)

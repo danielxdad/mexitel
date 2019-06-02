@@ -66,37 +66,32 @@ def test_url_page_title(driver, url, title):
     return pdu_tuple == pu_tuple and driver.title.lower() == title.lower()
 
 
-def init_driver_instance(webdriver_type='firefox', implicitly_wait=4):
+def init_driver_instance(implicitly_wait=4):
     """
-    Inicia el manejador de Chrome
+    Inicia el manejador de Firefox
     :param implicitly_wait: Tiempo de espera para carga y busqueda de elementos en las paginas.
-    :return: Instancia de webdriver (Firefox o Chrome)
+    :return: Instancia de webdriver
     """
     global args
 
-    if webdriver_type == 'firefox':
-        fp = webdriver.FirefoxProfile()
-        # Lenguage por defecto
-        fp.set_preference("intl.accept_languages", 'es-ES, es, en-US, en')
-        # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
-        fp.set_preference("security.mixed_content.block_active_content", False)
-        fp.set_preference("network.http.max-persistent-connections-per-server", 4)
-        fp.set_preference("network.tcp.keepalive.idle_time", 7200)
-        # Si se ha especificado el parametro --tor en la linea de comandos
-        if args.tor:
-            # Establecemos el Proxy SOCKSv5 en el navegador
-            fp.set_preference("network.proxy.type", 1)
-            fp.set_preference("network.proxy.socks", "127.0.0.1")
-            fp.set_preference("network.proxy.socks_port", 9050)
-            fp.set_preference("network.proxy.socks_version", 5)
-        fp.update_preferences()
-        driver = webdriver.Firefox(firefox_profile=fp)
-        driver.install_addon(os.path.join(config.BASE_DIR, 'disconnect-5.18.27-fx.xpi'), True)
-    elif webdriver_type == 'chrome':
-        driver = webdriver.Chrome(config.CHROME_DRIVER_PATH)
-    else:
-        raise RuntimeError('El tipo de webdriver especificado no esta soportado: {}'.format(webdriver_type))
+    fp = webdriver.FirefoxProfile()
+    # Lenguage por defecto
+    fp.set_preference("intl.accept_languages", 'es-ES, es, en-US, en')
+    # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
+    fp.set_preference("security.mixed_content.block_active_content", False)
+    fp.set_preference("network.http.max-persistent-connections-per-server", 4)
+    fp.set_preference("network.tcp.keepalive.idle_time", 7200)
+    # Si se ha especificado el parametro --tor en la linea de comandos
+    if args.tor:
+        # Establecemos el Proxy SOCKSv5 en el navegador
+        fp.set_preference("network.proxy.type", 1)
+        fp.set_preference("network.proxy.socks", "127.0.0.1")
+        fp.set_preference("network.proxy.socks_port", 9050)
+        fp.set_preference("network.proxy.socks_version", 5)
+    fp.update_preferences()
+    driver = webdriver.Firefox(firefox_profile=fp)
 
+    driver.install_addon(os.path.join(config.BASE_DIR, 'disconnect-5.18.27-fx.xpi'), True)
     driver.implicitly_wait(implicitly_wait)
     driver.maximize_window()
 

@@ -23,11 +23,6 @@ PASSWORD = read_config(CONFIG_FILE, 'PAGE').get('password')
 LOGIN_FIELD_USERNAME_ID = 'j_username'
 LOGIN_FIELD_PASSWORD_ID = 'j_password'
 
-CHROME_DRIVER_PATH = os.path.join(BASE_DIR, 'chromedriver')
-if not os.path.exists(CHROME_DRIVER_PATH):
-    print('ChromeDriver no existe en el path "{}"'.format(CHROME_DRIVER_PATH))
-    exit()
-
 PDF_TMP_DIR = os.path.join(BASE_DIR, 'pdf/')
 PDF_TMP_IMAGES_DIR = os.path.join(BASE_DIR, 'pdf/images/')
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 import argparse
 import time
 import os
@@ -16,8 +15,7 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 
 import config
 import cal
-from cal import MESES, ANIOS, calendar
-import utils
+
 
 driver = None   # Variable global para WebDriver handler
 args = None     # Variable global para parametros de la linea de comandos
@@ -81,6 +79,7 @@ def init_driver_instance(implicitly_wait=4):
     fp.set_preference("security.mixed_content.block_active_content", False)
     fp.set_preference("network.http.max-persistent-connections-per-server", 4)
     fp.set_preference("network.tcp.keepalive.idle_time", 7200)
+    fp.set_preference('devtools.console.stdout.content', True)
     # Si se ha especificado el parametro --tor en la linea de comandos
     if args.tor:
         # Establecemos el Proxy SOCKSv5 en el navegador
@@ -89,6 +88,7 @@ def init_driver_instance(implicitly_wait=4):
         fp.set_preference("network.proxy.socks_port", 9050)
         fp.set_preference("network.proxy.socks_version", 5)
     fp.update_preferences()
+
     driver = webdriver.Firefox(firefox_profile=fp)
 
     driver.install_addon(os.path.join(config.BASE_DIR, 'disconnect-5.18.27-fx.xpi'), True)
@@ -335,7 +335,6 @@ def main():
     df = pd.read_excel(
         excel_file,
         converters={
-            # 'procesado': lambda val: False if val.lower() == 'no' else True,
             'fecha_nacimiento': lambda val: str(val),
             'telefono_movil': lambda val: str(val),
         }
@@ -371,14 +370,19 @@ def main():
             continue
 
         # Testeamos la url actual y el titulo de la pagina
-        if not test_url_page_title(driver, 
+        if not test_url_page_title(
+            driver,
             'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
-            'Citas SRE'):
+            'Citas SRE'
+        ):
             print('[ERROR] - No se pudo acceder a la pagina de citas.')
-            input('>> ')
+            input('>>')
             return -1
+        
+        # TODO: Sobre escritura de funcion originalHandler para imprimir a consola todas las peticiones/respuestas
+        # hechas por el navegador
 
-        # Redefinimos la propiedad navigator.webdriver a false
+        # Redefinimos la propiedad navigator.webdriver a false para Captcha de Google
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
@@ -464,6 +468,7 @@ def main():
         pass
 
     return 0
+
 
 if __name__ == "__main__":
     atexit.register(exithandler)

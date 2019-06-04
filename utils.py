@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-import re
 import time
 from http import HTTPStatus
 
 import requests
 import chardet
-from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup as BS
 
 import config
@@ -19,12 +17,14 @@ def test_need_relogin(driver, tries=120):
     """
     jar = requests.cookies.RequestsCookieJar()
     for navcookie in driver.get_cookies():
-        jar.set(navcookie.get('name'), navcookie.get('value'), domain=navcookie.get('domain'), path=navcookie.get('path'))
+        jar.set(navcookie.get('name'), navcookie.get('value'), domain=navcookie.get('domain'),
+                path=navcookie.get('path'))
 
     for n in range(tries):
         try:
             resp = requests.get(
-                url='https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+                url='https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/'
+                    'registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
                 cookies=jar,
                 headers={
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
@@ -37,12 +37,13 @@ def test_need_relogin(driver, tries=120):
             )
         except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
             print('\n[ERROR] - Error en utils.test_need_relogin: "{}"'.format(error))
-            time.sleep(5)
+            time.sleep(10)
             continue
         else:
             if not resp.ok:
-                print('[ERROR] - Error en utils.test_need_relogin, el servidor a devuelto el error: %d - %s' % (resp.status_code, resp.reason))
-                time.sleep(5)
+                print('[ERROR] - Error en utils.test_need_relogin, el servidor a devuelto el error: %d - %s'
+                      % (resp.status_code, resp.reason))
+                time.sleep(10)
                 continue
             
             return resp.status_code == HTTPStatus.FOUND
@@ -73,12 +74,13 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
             )
         except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
             print('\n[ERROR] - Error en relogin, obtencion de pagina de login: "{}"'.format(error))
-            time.sleep(5)
+            time.sleep(10)
             continue
         else:
             if not resp_get.ok:
-                print('[ERROR] - Error al obtener pagina de login: %d - %s' % (resp_get.status_code, resp_get.reason))
-                return (None, None)
+                print('\n[ERROR] - Error al obtener pagina de login: %d - %s' % (resp_get.status_code, resp_get.reason))
+                time.sleep(10)
+                continue
 
             try:
                 # print('Cookies resp_get:', resp_get.cookies)
@@ -94,7 +96,8 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                     },
                     cookies=resp_get.cookies,
                     headers={
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,'
+                                  'image/apng,*/*;q=0.8',
                         'Accept-Encoding': 'gzip, deflate, br',
                         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
                         'Cache-Control': 'max-age=0',
@@ -108,30 +111,33 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                 )
             except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
                 print('\n[ERROR] - Error en relogin, peticion POST: "{}"'.format(error))
-                time.sleep(5)
+                time.sleep(10)
                 continue
             else:
                 print()
                 if not resp_post.ok:
-                    print('[ERROR] - Error en relogin, el servidor a devuelto el error: %d - %s' % (resp_post.status_code, resp_post.reason))
-                    print(resp_post.content)
+                    print('[ERROR] - Error en peticion POST relogin, el servidor a devuelto el error: %d - %s'
+                          % (resp_post.status_code, resp_post.reason))
+                    time.sleep(10)
                     continue
                 
                 if resp_post.status_code != HTTPStatus.FOUND:   # 302
-                    print('[ERROR] - Error en relogin, el servidor a devuelto el codigo %d se esparaba 302' % resp_post.status_code)
-                    return (None, None)
+                    print('[ERROR] - Error en relogin, el servidor a devuelto el codigo %d se esparaba 302'
+                          % resp_post.status_code)
+                    time.sleep(10)
+                    continue
 
                 # print('Cookies resp_post:', resp_post.cookies)
 
-                # Hacemos la peticion a
-                # https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true
-                # para obtener nuev javax.faces.ViewState
+                # Hacemos la peticion para obtener nuevo javax.faces.ViewState
                 try:
                     resp3 = requests.get(
-                        url='https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+                        url='https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/'
+                            'registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
                         cookies=resp_post.cookies,
                         headers={
-                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,'
+                                      'image/webp,image/apng,*/*;q=0.8',
                             'Accept-Encoding': 'gzip, deflate, br',
                             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
                             'User-Agent': user_agent,
@@ -139,14 +145,17 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                         allow_redirects=True,
                         timeout=15,
                     )
-                except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) as error:
+                except (requests.Timeout, requests.ConnectionError, requests.HTTPError, requests.TooManyRedirects) \
+                        as error:
                     print('[ERROR] - Error en relogin, obteniendo pagina de citas: "{}"'.format(error))
-                    time.sleep(5)
+                    time.sleep(10)
                     continue
                 else:
                     if not resp3.ok:
-                        print('[ERROR] - Error obteniendo javax.faces.ViewState, el servidor a respondido: %d - %s' % (resp3.status_code, resp3.reason))
-                        return (None, None)
+                        print('[ERROR] - Error obteniendo javax.faces.ViewState, el servidor a respondido: %d - %s'
+                              % (resp3.status_code, resp3.reason))
+                        time.sleep(10)
+                        continue
 
                     # Utilizamos BS
                     encoding = chardet.detect(resp3.content).get('encoding', 'UTF-8')
@@ -155,13 +164,14 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                     el = soup.find('input', attrs={'name': 'javax.faces.ViewState', 'type': 'hidden'})
                     if not el:
                         print('[ERROR] - No se puede encontrar el elemento input[name="javax.faces.ViewState"]')
-                        return (None, None)
+                        time.sleep(10)
+                        continue
                     
-                    print('javax.faces.ViewState', el['value'])
+                    # print('[INFO] - Nuevo javax.faces.ViewState:', el['value'])
 
-                return (resp_post.cookies, el['value'])
+                return resp_post.cookies, el['value']
     
-    return (None, None)
+    return None, None
 
 
 def relogin(driver):
@@ -169,7 +179,8 @@ def relogin(driver):
 
     # jar = requests.cookies.RequestsCookieJar()
     # for navcookie in driver.get_cookies():
-        # jar.set(navcookie.get('name'), navcookie.get('value'), domain=navcookie.get('domain'), path=navcookie.get('path'))
+    # jar.set(navcookie.get('name'), navcookie.get('value'), domain=navcookie.get('domain'),
+    # path=navcookie.get('path'))
     
     # WARN: No se estan pasando las cookies del navegador a get_login_new_cookie
     new_cookies, view_state = get_login_new_cookie(user_agent=ua)
@@ -178,7 +189,7 @@ def relogin(driver):
 
     # Estableciendo las nuevas cookies
     for cookie in new_cookies:
-        print('[INFO] - Estableciendo cookie: {}'.format(cookie.name))
+        print('[INFO] - Estableciendo cookie {}: {}'.format(cookie.name, cookie.value))
         driver.delete_cookie(cookie.name)
         cdict = {
             'name': cookie.name, 'value': cookie.value, 
@@ -191,7 +202,8 @@ def relogin(driver):
     if not driver.find_elements_by_name('javax.faces.ViewState'):
         print('[ERROR] - No se encontraron elementos del ViewState')
         return False
-    
+
+    print('[INFO] - Estableciendo nuevo javax.faces.ViewState:', view_state)
     driver.execute_script("""\
     document.querySelectorAll('input[name="javax.faces.ViewState"]').forEach((e, i) => { e.value="%s" })
     """ % view_state)

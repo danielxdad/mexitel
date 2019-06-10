@@ -36,6 +36,11 @@ FILE_EMAIL_UID_REG = os.path.join(BASE_DIR, 'email_uid_register.txt')
 if not os.path.exists(FILE_EMAIL_UID_REG):
     with open(FILE_EMAIL_UID_REG, 'w') as fd:
         pass
+    
+
+# Fichero para registrar todas las peticiones/respuestas
+REQUEST_LOG_FILE = os.path.join(BASE_DIR, 'request-responses.log')
+
 
 # Acciones
 # CERTIFICADOS, LEGALIZACIONES Y VISADOS

@@ -18,3 +18,5 @@ geckodriver.log
 pdf/*
 email_uid_register.txt
 *.bak
+request-responses.log
+

@@ -39,7 +39,7 @@ if not os.path.exists(FILE_EMAIL_UID_REG):
     
 
 # Fichero para registrar todas las peticiones/respuestas
-REQUEST_LOG_FILE = os.path.join(BASE_DIR, 'request-responses.log')
+REQUEST_LOG_FILE = os.path.join(BASE_DIR, 'responses.log')
 
 
 # Acciones

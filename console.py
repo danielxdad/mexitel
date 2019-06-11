@@ -146,7 +146,7 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
     if 'g-recaptcha-response' in form_data:
         captcha = None
         while not captcha:
-            captcha = input(Fore.YELLOW + '[QUEST] - Introduce el CAPTCHA:')
+            captcha = input(Fore.YELLOW + '[QUEST] - Introduce el CAPTCHA:').strip(' "')
         form_data['g-recaptcha-response'] = captcha
         
     # Calendario en modo mes

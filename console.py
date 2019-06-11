@@ -175,7 +175,7 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
                 data=form_data,
                 headers=request_headers,
                 cookies=cookies,
-                timeout=30,
+                timeout=60,
                 allow_redirects=False,
             )
         except requests.Timeout:

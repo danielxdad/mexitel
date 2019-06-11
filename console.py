@@ -187,6 +187,9 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
         except requests.HTTPError as error:
             utils.print_message('[ERROR] - Error HTTP: "{}"'.format(error), color=Fore.RED)
             continue
+        except requests.RequestException as error:
+            utils.print_message('[ERROR] - Error en peticion: "{}"'.format(error), color=Fore.RED)
+            continue
         else:
             utils.print_message('[INFO] - Tiempo de respuesta: %.2f seg' % (time.time() - bt))
             

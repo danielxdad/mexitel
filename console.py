@@ -48,7 +48,8 @@ def parse_argument() -> argparse.Namespace:
 
 def get_month_range():
     """
-    Devuelve el rango de fechas que contiene todo el mes espeficiado por al linea de comando
+    Devuelve el rango de fechas de todo el año, la respuesta del servidor aunque solo se especifique un rango de mes
+    viene con todos los eventos declarado en la pagina sin importar el rango especificado.
     :return: Tupla (mb, me)
     """
     args = parse_argument()

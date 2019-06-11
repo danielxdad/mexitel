@@ -361,7 +361,7 @@ def calendar(ua, row, cookies, view_state) -> ActionEnum:
         
         # Esperamos maximo 180 segundos(3 minutos) por el arribo del correo
         nsegs = 180
-        print('[INFO] - Esperando por email PDF con "Codigo de seguridad" y "Token": %d minutos' % (nsegs // 60))
+        utils.print_message('[INFO] - Esperando por email PDF con "Codigo de seguridad" y "Token": %d minutos' % (nsegs // 60))
         message = mail.get_email_pdf_tokens(timeout=nsegs, filter_email_from='citas_sre@sre.gob.mx')
         if message:
             pdf_file_path = mail.save_pdf_from_message(message)

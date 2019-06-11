@@ -36,10 +36,9 @@ def parse_argument() -> argparse.Namespace:
     :return: Instancia de argparse.Namespace
     """
     parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
+    # parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
+    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, required=True, help='Anio del calendario.')
     parser.add_argument('--visas', action='store_true', help='Utilizar lista de acciones para Visas.')
-    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
-    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario.')
-    # parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5.')
     parser.add_argument('--no-confirm', action='store_true', help='No hacer la peticion de confirmacion de cita.')
     parser.add_argument('--emulate-relogin', action='store_true', help='Emula un relogin aleatorio desde la funcion calendar.')
     parser.add_argument('file', nargs=1, help='Fichero con datos de clientes.')
@@ -169,12 +168,6 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
         try:
             utils.print_message('[INFO] - Ejecutando accion "%s"...' % name)
             
-            # pprint(peticion['method'])
-            # pprint(peticion['url'])
-            # pprint(form_data)
-            # pprint(request_headers)
-            # pprint(cookies)
-            
             bt = time.time()
             response = requests.request(
                 method=peticion['method'],
@@ -189,10 +182,10 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
             utils.print_message('[ERROR] - Tiempo de espera agotado en peticion', color=Fore.RED)
             continue
         except requests.ConnectionError as error:
-            utils.print_message('[ERROR] - Error de conexion en peticion: "{}"'.format(error), color=Fore.RED)
+            utils.print_message('[ERROR] - Error de conexion: "{}"'.format(error), color=Fore.RED)
             continue
         except requests.HTTPError as error:
-            utils.print_message('[ERROR] - Error en respuesta HTTP: "{}"'.format(error), color=Fore.RED)
+            utils.print_message('[ERROR] - Error HTTP: "{}"'.format(error), color=Fore.RED)
             continue
         else:
             utils.print_message('[INFO] - Tiempo de respuesta: %.2f seg' % (time.time() - bt))
@@ -245,7 +238,7 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
                     if not xpath_func(root):
                         utils.print_message('[ERROR] - No se puede encontrar el XPath "{}" en respuesta XML del servidor'.format(xpath_func),
                                             color=Fore.RED)
-                        print(etree.tostring(root, pretty_print=True, encoding='UTF-8').decode('UTF-8'))
+                        # print(etree.tostring(root, pretty_print=True, encoding='UTF-8').decode('UTF-8'))
                         xml_valid_response = False
                         break
             
@@ -397,6 +390,9 @@ def calendar(ua, row, cookies, view_state) -> ActionEnum:
                 
                 utils.print_message('[INFO] - *** CITA CONFIRMADA ***', color=Fore.LIGHTWHITE_EX)
                 break
+            else:
+                utils.print_message('[WARN] - No se confirma la cita por parametro "--no-confirm"',
+                                    color=Fore.LIGHTYELLOW_EX)
         
         else:
             utils.print_message('[WARN] - Tiempo de espera agotado en obtencion de email con tokens', color=Fore.YELLOW)
@@ -458,8 +454,6 @@ def main():
             cookies, view_state = utils.get_login_new_cookie(user_agent=ua)
             if not cookies or not view_state:
                 return False
-            # pprint(cookies)
-            # pprint(view_state)
             print('=' * 100, '\n')
     
         for index, row in df.iterrows():
@@ -469,9 +463,6 @@ def main():
             utils.print_message('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
             
             for peticion in peticiones_pipeline:
-                # if peticion['name'] == 'Calendario Mes':
-                #     return
-                    
                 action, data = execute_action(peticion, ua, row, cookies, view_state)
                 if action == ActionEnum.RELOGIN:
                     break

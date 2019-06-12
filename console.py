@@ -203,7 +203,7 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
                 continue
         
             if detect_relogin_response(response):
-                utils.print_message('[INFO] - Relogin detectado')
+                utils.print_message('[WARN] - Relogin detectado', color=Fore.LIGHTYELLOW_EX)
                 return ActionEnum.RELOGIN
         
             if response.status_code != peticion['status_code']:

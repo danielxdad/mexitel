@@ -116,7 +116,7 @@ CALENDAR_MONTH_SELECT_EVENT = {
         # 'formRegistroCitaExtranjero:selectNoLegalizados_input': 1,
         # 'formRegistroCitaExtranjero:doc:0:noMinrex': '213',
         'formRegistroCitaExtranjero:teldomicilio': '',
-        'formRegistroCitaExtranjero:telmovil': '54265689',
+        'formRegistroCitaExtranjero:telmovil': '',
         # g-recaptcha-response:
         'formRegistroCitaExtranjero:schedule_view': 'month',
         'javax.faces.ViewState': '',
@@ -127,6 +127,7 @@ CALENDAR_MONTH_SELECT_EVENT = {
     },
     'xml_valid_response': [
         etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero"]'),
+        etree.XPath('/partial-response/changes/update[@id="reviewForm"]'),
         etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
     ],
     'xml_invalid_response': [
@@ -349,6 +350,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
         },
         'xml_valid_response': [
             etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero"]'),
+            etree.XPath('/partial-response/changes/update[@id="matriculaConsularDialog"]'),
             etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
         ],
         'xml_invalid_response': [
@@ -668,6 +670,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'content-type': 'text/xml',
         },
         'xml_valid_response': [
+            etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero:panelFechaNacimiento"]'),
             etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
         ],
         'xml_invalid_response': [

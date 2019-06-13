@@ -24,6 +24,7 @@ _patch_js_web_page = () => {
   
   $(document.getElementById('formRegistroCitaExtranjero:buscarCita')).prop('disabled', 'disabled')
   $(document.getElementById('formRegistroCitaExtranjero:limpiarCita')).prop('disabled', 'disabled')
+  document.getElementById("headerForm:nonAjax").onclick = () => {}
 }
 
 _patch_js_web_page()

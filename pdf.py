@@ -45,13 +45,12 @@ def extract_pdf_images(doc, page=0):
         # 229x57
         # 235x57
         # 247x57
-        if not(200 <= width <= 260 and height == 57):
+        if not(200 <= width <= 265 and height == 57):
             continue
 
         # Convertimos la imagen a escala de grises
         pix = fitz.Pixmap(fitz.csGRAY, fitz.Pixmap(doc, xref))
         pix.writePNG(os.path.join(config.PDF_TMP_IMAGES_DIR, "page%s-%s.png" % (0, xref)))
-        pix = None
         imagen_found_count += 1
     
     assert imagen_found_count == 2, 'Se encontraron {} imagenes para codigo de seguridad'.format(imagen_found_count)

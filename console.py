@@ -68,8 +68,8 @@ def detect_relogin_response(response: requests.Response) -> bool:
     :return: Boolean True o False
     """
     if response.status_code == HTTPStatus.FOUND:
-        utils.print_message('[INFO] - HTTP response: 302 - Found')
-        utils.print_message('[INFO] - HTTP response location: {}'.format(response['location']))
+        utils.print_message('[INFO] - HTTP response: 302 Found')
+        utils.print_message('[INFO] - HTTP response location: {}'.format(response.headers.get('location')))
         return True
     
     if response.status_code == HTTPStatus.OK:
@@ -204,7 +204,7 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
         
             if detect_relogin_response(response):
                 utils.print_message('[WARN] - Relogin detectado', color=Fore.LIGHTYELLOW_EX)
-                return ActionEnum.RELOGIN
+                return ActionEnum.RELOGIN, data
         
             if response.status_code != peticion['status_code']:
                 utils.print_message('[ERROR] - El codigo HTTP es diferente al esperado: %d - %d' %

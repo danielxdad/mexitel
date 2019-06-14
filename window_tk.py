@@ -7,6 +7,13 @@ class Application(tk.Frame):
     def __init__(self, master=None, imagen=None, text_ocr=None):
         super().__init__(master)
 
+        self.master.title('Codigo de seguridad')
+        width = 300
+        height = 135
+        x = self.master.winfo_screenwidth() // 2 - (300 // 2)
+        y = self.master.winfo_screenheight() // 3 - (135 // 2)
+        self.master.geometry('%dx%d+%d+%d' % (width, height, x, y))
+
         if not imagen or not text_ocr:
             raise ValueError('No se ha especificado una imagen o texto extraido mediante OCR.')
         
@@ -38,6 +45,6 @@ class Application(tk.Frame):
 
 if __name__ == '__main__':
     root = tk.Tk()
-    app = Application(master=root,imagen='pdf/images/tesseract_image.png', text_ocr='IOguhsm3')
+    app = Application(master=root, imagen='pdf/images/tesseract_image.png', text_ocr='IOguhsm3')
     app.mainloop()
     print(app.text_ocr)

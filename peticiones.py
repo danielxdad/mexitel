@@ -56,6 +56,8 @@ CALENDAR_MONTH_REQUEST = {
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
+        'Cache-Control': 'no-cache, max-age=0',
+        'Pragma': 'no-cache',
     },
     'form_data': {
         'javax.faces.partial.ajax': 'true',
@@ -84,7 +86,6 @@ CALENDAR_MONTH_REQUEST = {
     'parser_response': month_calendar_response_parser,
 }
 
-
 CALENDAR_MONTH_SELECT_EVENT = {
     'name': 'Calendario Seleccion Evento Mes',
     'method': 'POST',
@@ -97,6 +98,8 @@ CALENDAR_MONTH_SELECT_EVENT = {
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
+        'Cache-Control': 'no-cache, max-age=0',
+        'Pragma': 'no-cache',
     },
     'form_data': {
         'javax.faces.partial.ajax': 'true',
@@ -147,6 +150,8 @@ CALENDAR_GET_DAY_EVENTS = {
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
+        'Cache-Control': 'no-cache, max-age=0',
+        'Pragma': 'no-cache',
     },
     'form_data': {
         'javax.faces.partial.ajax': 'true',
@@ -187,6 +192,8 @@ CALENDAR_SELECT_HOUR_EVENT = {
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
+        'Cache-Control': 'no-cache, max-age=0',
+        'Pragma': 'no-cache',
     },
     'form_data': {
         'javax.faces.partial.ajax': 'true',
@@ -237,6 +244,8 @@ CALENDAR_CONFIRM_CITA = {
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
+        'Cache-Control': 'no-cache, max-age=0',
+        'Pragma': 'no-cache',
     },
     'form_data': {
         'javax.faces.partial.ajax': 'true',
@@ -277,6 +286,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -315,6 +326,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -370,6 +383,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -408,6 +423,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -468,6 +485,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -507,6 +526,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -543,6 +564,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -580,6 +603,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -617,6 +642,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -653,6 +680,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -690,6 +719,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -726,6 +757,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',
@@ -764,6 +797,8 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
         },
         'form_data': {
             'javax.faces.partial.ajax': 'true',

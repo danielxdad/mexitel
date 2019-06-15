@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
-from lxml import etree
 import requests
+from lxml import etree
 from colorama import Fore
 
 import utils
+from main import parse_argument
+
+
+args = parse_argument()
 
 
 def validate_response_button_buscar_citas(response: requests.Response) -> bool:
@@ -44,47 +48,106 @@ def month_calendar_response_parser(response: requests.Response) -> dict:
 
 
 # Peticion para obtecion de eventos de calendario en modo mes
-CALENDAR_MONTH_REQUEST = {
-    'name': 'Calendario Mes',
-    'method': 'POST',
-    'url': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
-    'request_headers': {
-        'Accept': 'application/xml, text/xml, */*; q=0.01',
-        'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
-        'faces-request': 'partial/ajax',
-        'Origin': 'https://mexitel.sre.gob.mx',
-        'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
-        'User-Agent': '',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Cache-Control': 'no-cache, max-age=0',
-        'Pragma': 'no-cache',
-    },
-    'form_data': {
-        'javax.faces.partial.ajax': 'true',
-        'javax.faces.source': 'formRegistroCitaExtranjero:schedule',
-        'javax.faces.partial.execute': 'formRegistroCitaExtranjero:schedule',
-        'javax.faces.partial.render': 'formRegistroCitaExtranjero:schedule',
-        'formRegistroCitaExtranjero:schedule': 'formRegistroCitaExtranjero:schedule',
-        'formRegistroCitaExtranjero:schedule_start': '',    # 1558821600000, Timestamp de JS en milisegundos
-        'formRegistroCitaExtranjero:schedule_end': '',  # 1562450400000, Timestamp de JS en milisegundos
-        'formRegistroCitaExtranjero': 'formRegistroCitaExtranjero',
-        'formRegistroCitaExtranjero:schedule_view': 'month',
-        'javax.faces.ViewState': '',
-
-    },
-    'status_code': 200,
-    'response_headers': {
-        'content-type': 'text/xml',
-    },
-    'xml_valid_response': [
-        etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero:schedule"]'),
-        etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
-    ],
-    'xml_invalid_response': [
-        etree.XPath('/partial-response/changes/extension[@ln="primefaces"]'),
-    ],
-    'parser_response': month_calendar_response_parser,
-}
+if args.visas:
+    CALENDAR_MONTH_REQUEST = {
+        'name': 'Calendario Mes',
+        'method': 'POST',
+        'url': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
+        'request_headers': {
+            'Accept': 'application/xml, text/xml, */*; q=0.01',
+            'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
+            'faces-request': 'partial/ajax',
+            'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
+            'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+            'User-Agent': '',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
+        },
+        'form_data': {
+            'javax.faces.partial.ajax': 'true',
+            'javax.faces.source': 'formRegistroCitaExtranjero:schedule',
+            'javax.faces.partial.execute': 'formRegistroCitaExtranjero:schedule',
+            'javax.faces.partial.render': 'formRegistroCitaExtranjero:schedule',
+            'formRegistroCitaExtranjero:schedule': 'formRegistroCitaExtranjero:schedule',
+            'formRegistroCitaExtranjero:schedule_start': '',
+            'formRegistroCitaExtranjero:schedule_end': '',
+            'formRegistroCitaExtranjero': 'formRegistroCitaExtranjero',
+            'formRegistroCitaExtranjero:selectPais_focus': '',
+            'formRegistroCitaExtranjero:selectPais_input': 17,
+            'formRegistroCitaExtranjero:selectSedeUbicacion_filter': '',
+            'formRegistroCitaExtranjero:selectTipoDocumento_focus': '',
+            'formRegistroCitaExtranjero:selectTipoDocumento_input': 4,
+            'formRegistroCitaExtranjero:selectTramite_focus': '',
+            'formRegistroCitaExtranjero:selectTramite_input': 12,
+            'formRegistroCitaExtranjero:selectTipoTramite_focus': '',
+            'formRegistroCitaExtranjero:selectTipoTramite_input': 63,
+            'formRegistroCitaExtranjero:noPasapAnt': '',
+            'formRegistroCitaExtranjero:selectPaisPasaporte_filter': '',
+            'formRegistroCitaExtranjero:selectNacionalidad_filter': '',
+            'formRegistroCitaExtranjero:selectPaisNacimiento_filter': '',
+            'formRegistroCitaExtranjero:teldomicilio': '',
+            'formRegistroCitaExtranjero:telmovil': '',
+            'formRegistroCitaExtranjero:schedule_view': 'month',
+            'javax.faces.ViewState': '',
+        },
+        'status_code': 200,
+        'response_headers': {
+            'content-type': 'text/xml',
+        },
+        'xml_valid_response': [
+            etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero:schedule"]'),
+            etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
+        ],
+        'xml_invalid_response': [
+            etree.XPath('/partial-response/changes/extension[@ln="primefaces"]'),
+        ],
+        'parser_response': month_calendar_response_parser,
+    }
+else:
+    CALENDAR_MONTH_REQUEST = {
+        'name': 'Calendario Mes',
+        'method': 'POST',
+        'url': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
+        'request_headers': {
+            'Accept': 'application/xml, text/xml, */*; q=0.01',
+            'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
+            'faces-request': 'partial/ajax',
+            'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
+            'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+            'User-Agent': '',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, max-age=0',
+            'Pragma': 'no-cache',
+        },
+        'form_data': {
+            'javax.faces.partial.ajax': 'true',
+            'javax.faces.source': 'formRegistroCitaExtranjero:schedule',
+            'javax.faces.partial.execute': 'formRegistroCitaExtranjero:schedule',
+            'javax.faces.partial.render': 'formRegistroCitaExtranjero:schedule',
+            'formRegistroCitaExtranjero:schedule': 'formRegistroCitaExtranjero:schedule',
+            'formRegistroCitaExtranjero:schedule_start': '',  # 1558821600000, Timestamp de JS en milisegundos
+            'formRegistroCitaExtranjero:schedule_end': '',  # 1562450400000, Timestamp de JS en milisegundos
+            'formRegistroCitaExtranjero': 'formRegistroCitaExtranjero',
+            'formRegistroCitaExtranjero:schedule_view': 'month',
+            'javax.faces.ViewState': '',
+            
+        },
+        'status_code': 200,
+        'response_headers': {
+            'content-type': 'text/xml',
+        },
+        'xml_valid_response': [
+            etree.XPath('/partial-response/changes/update[@id="formRegistroCitaExtranjero:schedule"]'),
+            etree.XPath('/partial-response/changes/update[@id="javax.faces.ViewState"]'),
+        ],
+        'xml_invalid_response': [
+            etree.XPath('/partial-response/changes/extension[@ln="primefaces"]'),
+        ],
+        'parser_response': month_calendar_response_parser,
+    }
 
 CALENDAR_MONTH_SELECT_EVENT = {
     'name': 'Calendario Seleccion Evento Mes',
@@ -95,6 +158,7 @@ CALENDAR_MONTH_SELECT_EVENT = {
         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
         'faces-request': 'partial/ajax',
         'Origin': 'https://mexitel.sre.gob.mx',
+        'Accept-Encoding': 'gzip, deflate',
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -112,15 +176,8 @@ CALENDAR_MONTH_SELECT_EVENT = {
         'formRegistroCitaExtranjero': 'formRegistroCitaExtranjero',
         'formRegistroCitaExtranjero:selectPais_focus': '',
         'formRegistroCitaExtranjero:selectPais_input': 17,
-        # 'formRegistroCitaExtranjero:selectSedeUbicacion_filter': '',
-        # 'formRegistroCitaExtranjero:selectTipoDocumento_focus': '',
-        # 'formRegistroCitaExtranjero:selectTipoDocumento_input': 3,
-        # 'formRegistroCitaExtranjero:selectNoLegalizados_focus': '',
-        # 'formRegistroCitaExtranjero:selectNoLegalizados_input': 1,
-        # 'formRegistroCitaExtranjero:doc:0:noMinrex': '213',
         'formRegistroCitaExtranjero:teldomicilio': '',
         'formRegistroCitaExtranjero:telmovil': '',
-        # g-recaptcha-response:
         'formRegistroCitaExtranjero:schedule_view': 'month',
         'javax.faces.ViewState': '',
     },
@@ -147,6 +204,7 @@ CALENDAR_GET_DAY_EVENTS = {
         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
         'faces-request': 'partial/ajax',
         'Origin': 'https://mexitel.sre.gob.mx',
+        'Accept-Encoding': 'gzip, deflate',
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -179,7 +237,6 @@ CALENDAR_GET_DAY_EVENTS = {
     'parser_response': month_calendar_response_parser,
 }
 
-
 CALENDAR_SELECT_HOUR_EVENT = {
     'name': 'Calendario Seleccion Hora',
     'method': 'POST',
@@ -189,6 +246,7 @@ CALENDAR_SELECT_HOUR_EVENT = {
         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
         'faces-request': 'partial/ajax',
         'Origin': 'https://mexitel.sre.gob.mx',
+        'Accept-Encoding': 'gzip, deflate',
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -241,6 +299,7 @@ CALENDAR_CONFIRM_CITA = {
         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
         'faces-request': 'partial/ajax',
         'Origin': 'https://mexitel.sre.gob.mx',
+        'Accept-Encoding': 'gzip, deflate',
         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
         'User-Agent': '',
         'X-Requested-With': 'XMLHttpRequest',
@@ -271,7 +330,6 @@ CALENDAR_CONFIRM_CITA = {
     ],
 }
 
-
 REQUEST_PIPELINE_FORM_VISAS = [
     # Pais
     {
@@ -283,6 +341,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -323,6 +382,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -380,6 +440,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -420,6 +481,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -482,6 +544,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -523,6 +586,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -561,6 +625,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -600,6 +665,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -639,6 +705,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -677,6 +744,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -716,6 +784,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -754,6 +823,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -794,6 +864,7 @@ REQUEST_PIPELINE_FORM_VISAS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -860,6 +931,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'Faces-Request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'TE': 'Trailers',
@@ -899,6 +971,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -954,6 +1027,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -991,6 +1065,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1028,6 +1103,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1065,6 +1141,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1102,6 +1179,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1139,6 +1217,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',
@@ -1177,6 +1256,7 @@ REQUEST_PIPELINE_FORM_CERTIFICADOS = [
             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
             'faces-request': 'partial/ajax',
             'Origin': 'https://mexitel.sre.gob.mx',
+            'Accept-Encoding': 'gzip, deflate',
             'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
             'User-Agent': '',
             'X-Requested-With': 'XMLHttpRequest',

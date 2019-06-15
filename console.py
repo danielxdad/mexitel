@@ -167,11 +167,10 @@ def execute_action(peticion, ua, row, cookies, view_state) -> (ActionEnum, dict)
     
         try:
             utils.print_message('[INFO] - Ejecutando accion "%s"...' % name)
-            
             bt = time.time()
             response = requests.request(
                 method=peticion['method'],
-                url=peticion['url'],
+                url='{}?_={}'.format(peticion['url'], int(datetime.datetime.now().timestamp())),
                 data=form_data,
                 headers=request_headers,
                 cookies=cookies,

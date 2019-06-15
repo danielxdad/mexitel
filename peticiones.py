@@ -4,7 +4,7 @@ from lxml import etree
 from colorama import Fore
 
 import utils
-from main import parse_argument
+from console import parse_argument
 
 
 args = parse_argument()

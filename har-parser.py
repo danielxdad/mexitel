@@ -38,11 +38,19 @@ def main():
         # response = list(filter(lambda e: e['response']['content']['mimeType'] == 'text/xml'))
         # print(len(entries))
         for ent in entries:
-            post_data = ent['request']['postData']['params']
+            request = ent['request']
+            post_data = request['postData']['params']
             response = ent['response']['content']['text']
+            
+            print(request['method'], request['url'])
+            for header in request['headers']:
+                if header['name'][0] != ':':
+                    print('{}: {}'.format(header['name'], header['value']))
+            print()
+            
             for param in post_data:
                 print('{}: {}'.format(unquote(param['name']), unquote(param['value']).replace('+', ' ')))
-            
+    
             print()
             # XML Response
             parser = etree.XMLParser(load_dtd=False, no_network=True, ns_clean=True, remove_comments=True)
@@ -68,14 +76,14 @@ def main():
                                 else:
                                     xpath.append('{}'.format(parent.tag))
                                 parent = parent.getparent()
-
+                    
                             xpath.reverse()
                             print('/' + '/'.join(xpath))
-                
+        
                 iter_children(root)
-            
+    
             print('=' * 130, '\n')
-            input()
+            # input()
     
 
 if __name__ == '__main__':

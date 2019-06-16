@@ -3,18 +3,18 @@ import os
 import errno
 import pathlib
 import re
-import glob
 import warnings
 
 import fitz
 import numpy as np
-from PIL import Image
+from colorama import Fore
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pytesseract
     import matplotlib.pyplot as plt
 
 import config
+import utils
 
 
 def extract_pdf_images(doc, page=0):
@@ -27,7 +27,7 @@ def extract_pdf_images(doc, page=0):
     # Si no existe el dictorio temporal para las imagenes, lo creamos
     if not os.path.exists(config.PDF_TMP_IMAGES_DIR):
         os.makedirs(config.PDF_TMP_IMAGES_DIR)
-
+    
     # Eliminamos todas las imagenes PNG contenidas en el 
     for pn in pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'):
         pn.unlink()
@@ -38,46 +38,83 @@ def extract_pdf_images(doc, page=0):
         xref = image[0]
         width = image[2]
         height = image[3]
-
+        
         # Si no corresponde el alto y el ancho con el declarado en filter_dimension no se guarda la imagen
         # Resoluciones obtenidas en pruebas de imagen con "Codigo de seguridad":
-        # 209x57
-        # 229x57
-        # 235x57
-        # 247x57
-        if not(200 <= width <= 265 and height == 57):
+        # 209x57, 229x57, 235x57, 265x57
+        # if not(200 <= width <= 265 and height == 57):
+        #     continue
+        
+        # Hora picotean el codigo de seguridad por cada letra, la altura de la imagen se mantiene en 57
+        # Ancho minimo 16, maximo 47
+        if not(10 <= width <= 50 and height == 57):
             continue
-
+        
         # Convertimos la imagen a escala de grises
         pix = fitz.Pixmap(fitz.csGRAY, fitz.Pixmap(doc, xref))
-        pix.writePNG(os.path.join(config.PDF_TMP_IMAGES_DIR, "page%s-%s.png" % (0, xref)))
+        pix.writePNG(os.path.join(config.PDF_TMP_IMAGES_DIR, "%s.png" % xref))
         imagen_found_count += 1
     
-    assert imagen_found_count == 2, 'Se encontraron {} imagenes para codigo de seguridad'.format(imagen_found_count)
-
+    assert imagen_found_count == 16, 'Se encontraron {} imagenes para codigo de seguridad, no 16.'.format(imagen_found_count)
+    
     # Leemos las dos imagenes que deben tener el codigo
-    image_list = []
-    for pn in pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'):
-        with pn.open('rb') as fd:
-            image_list.append(plt.imread(fd, format='png').astype(np.uint8))
-    
-    assert image_list[0].shape == image_list[1].shape, 'Las dimensiones de las imagenes de codigo de seguridad son diferentes'
-    
-    xor_image_arr = np.bitwise_xor(image_list[0], image_list[1]).astype(np.uint8)
+    image_peer = []
+    csimage = None
+    for pn in sorted(pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'), key=lambda p: int(p.stem)):
+        if len(image_peer) == 2:
+            with image_peer[0].open('rb') as fd:
+                img1 = plt.imread(fd, format='png')#.astype(np.uint8)
+                
+            with image_peer[1].open('rb') as fd:
+                img2 = plt.imread(fd, format='png')#.astype(np.uint8)
+                
+            image_peer = []
+            
+            try:
+                # comb_image = np.bitwise_xor(img1, img2)
+                comb_image = np.subtract(img1, img2)
+                comb_image[comb_image < 1] = 0
+            except ValueError as err:
+                utils.print_message('[ERROR] - Error combinando las imagenes "{}" y "{}": {}'.format(
+                    image_peer[0], image_peer[1], err), color=Fore.RED)
+                return ''
+            else:
+                # fig, axs = plt.subplots(1, 3)
+                # images = [img1, img2, comb_image]
+                # for i in range(3):
+                #     img, ax = images[i], axs[i]
+                #     ax.imshow(img, cmap=plt.cm.gray)
+                #     ax.axis('off')
+                # plt.show()
+                
+                if csimage is None:
+                    csimage = comb_image
+                else:
+                    csimage = np.hstack((csimage, comb_image))
+            
+        image_peer.append(pn)
+
     output_image_file = os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
-    plt.imsave(output_image_file, xor_image_arr)
-    codigo_seg = pytesseract.image_to_string(xor_image_arr, config='-psm 8').strip()
+    plt.imsave(output_image_file, csimage, cmap=plt.cm.gray)
+    codigo_seg = pytesseract.image_to_string(csimage, config='-psm 8').strip()
+    
+    # assert image_list[0].shape == image_list[1].shape,
+    # 'Las dimensiones de las imagenes de codigo de seguridad son diferentes'
+    # xor_image_arr = np.bitwise_xor(image_list[0], image_list[1]).astype(np.uint8)
+    # output_image_file = os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
+    # plt.imsave(output_image_file, xor_image_arr)
+    # codigo_seg = pytesseract.image_to_string(xor_image_arr, config='-psm 8').strip()
     # if not re.match('^[a-zA-Z0-9]{8}$', codigo_seg):
-        # raise ValueError('El codigo de seguridad es invalido: %s' % repr(codigo_seg))
+    # raise ValueError('El codigo de seguridad es invalido: %s' % repr(codigo_seg))
     
     # fig, axs = plt.subplots(3, 1)
     # images = image_list + [xor_image_arr]
     # for i in range(3):
-        # img, ax = images[i], axs[i]
-        # ax.imshow(img, cmap=plt.cm.gray)
-        # ax.axis('off')
+    # img, ax = images[i], axs[i]
+    # ax.imshow(img, cmap=plt.cm.gray)
+    # ax.axis('off')
     # plt.show()
-
+    
     return codigo_seg
 
 
@@ -120,7 +157,7 @@ def extract_pdf_tokens(pdf_file_path):
     
     codigo_seg = extract_pdf_images(doc)
     doc.close()
-    return (codigo_seg, text_token)
+    return codigo_seg, text_token
 
 
 if __name__ == '__main__':

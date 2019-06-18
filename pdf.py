@@ -164,6 +164,8 @@ if __name__ == '__main__':
     # Test
     import sys
     import time
+    import tkinter as tk
+    import window_tk
     
     if len(sys.argv) <= 1:
         print('[ERROR] - Especifica un PDF con los token!!!')
@@ -175,3 +177,8 @@ if __name__ == '__main__':
     print('Execute time: %.2f' % (time.time() - bt))
     print('Codigo seg:', codigo_seg)
     print('Token:', text_token)
+
+    root = tk.Tk()
+    app = window_tk.Application(master=root, imagen='pdf/images/tesseract_image.png', text_ocr=codigo_seg)
+    app.mainloop()
+    print('Codigo seg:', app.text_ocr)

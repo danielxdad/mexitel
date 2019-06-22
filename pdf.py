@@ -61,6 +61,7 @@ def extract_pdf_images(doc, page=0):
     image_peer = []
     csimage = None
     for pn in sorted(pathlib.Path(config.PDF_TMP_IMAGES_DIR).glob('*.png'), key=lambda p: int(p.stem)):
+        image_peer.append(pn)
         if len(image_peer) == 2:
             with image_peer[0].open('rb') as fd:
                 img1 = plt.imread(fd, format='png')#.astype(np.uint8)
@@ -91,8 +92,6 @@ def extract_pdf_images(doc, page=0):
                     csimage = comb_image
                 else:
                     csimage = np.hstack((csimage, comb_image))
-            
-        image_peer.append(pn)
 
     output_image_file = os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')
     plt.imsave(output_image_file, csimage, cmap=plt.cm.gray)

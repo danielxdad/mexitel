@@ -72,13 +72,16 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
         print_message('[INFO] - Intento de relogin: %d de %d...\t\t' % (n, tries), end='\r')
         try:
             resp_get = requests.get(
-                url=config.LOGIN_URL,
+                # url=config.LOGIN_URL,
+                url='{}?_={}'.format(config.LOGIN_URL, int(datetime.datetime.now().timestamp())),
                 cookies=cookies,
                 headers={
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
                     'Accept-Encoding': 'gzip, deflate, br',
                     'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
                     'User-Agent': user_agent,
+                    'Cache-Control': 'no-cache, max-age=0',
+                    'Pragma': 'no-cache',
                 },
                 allow_redirects=True,
                 timeout=60,
@@ -101,7 +104,8 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                 # print(config.USERNAME)
                 # print(config.PASSWORD)
                 resp_post = requests.post(
-                    url=url_post, 
+                    # url=url_post,
+                    url='{}?_={}'.format(url_post, int(datetime.datetime.now().timestamp())),
                     data={
                         'j_username': config.USERNAME,
                         'j_password': config.PASSWORD,
@@ -112,11 +116,12 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                                   'image/apng,*/*;q=0.8',
                         'Accept-Encoding': 'gzip, deflate, br',
                         'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
-                        'Cache-Control': 'max-age=0',
                         'Content-Type': 'application/x-www-form-urlencoded',
                         'User-Agent': user_agent,
                         'Origin': 'https://mexitel.sre.gob.mx',
                         'Referer': 'https://mexitel.sre.gob.mx/citas.webportal/pages/public/login/login.jsf',
+                        'Cache-Control': 'no-cache, max-age=0',
+                        'Pragma': 'no-cache',
                     },
                     allow_redirects=False,
                     timeout=60,
@@ -143,9 +148,10 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
 
                 # Hacemos la peticion para obtener nuevo javax.faces.ViewState
                 try:
+                    url_get = 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/' \
+                              'registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true'
                     resp3 = requests.get(
-                        url='https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/'
-                            'registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true',
+                        url='{}&_={}'.format(url_get, int(datetime.datetime.now().timestamp())),
                         cookies=resp_post.cookies,
                         headers={
                             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,'
@@ -153,6 +159,8 @@ def get_login_new_cookie(cookies=None, user_agent='Mozilla/5.0', tries=120):
                             'Accept-Encoding': 'gzip, deflate, br',
                             'Accept-Language': 'es-US,es-419;q=0.9,es;q=0.8',
                             'User-Agent': user_agent,
+                            'Cache-Control': 'no-cache, max-age=0',
+                            'Pragma': 'no-cache',
                         },
                         allow_redirects=True,
                         timeout=60,

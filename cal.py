@@ -212,7 +212,7 @@ def calendar(driver, mes, anio, action_list, row):
     # Importamos esto aqui ;)
     from main import check_procesing_modal
     
-    print('[INFO] - Haciendo la magia del calendario...')
+    print('[INFO] - Entrando en el calendario...')
 
     a_tags_elements = []
     while True:
@@ -259,6 +259,9 @@ def calendar(driver, mes, anio, action_list, row):
         # damos click en el boton "Mes" para refrescar el calendario en el mes actual seleccionado
         # para ver si ya abrieron las citas
         if not a_tags_elements:
+            # Hacemos una espera de 10 segundos entre cada refresqueo del calendario
+            time.sleep(10)
+            
             try:
                 # Boton Mes, ID: "formRegistroCitaExtranjero:Month"
                 el = driver.find_element_by_id('formRegistroCitaExtranjero:Month')
@@ -270,9 +273,6 @@ def calendar(driver, mes, anio, action_list, row):
                 el.click()
                 time.sleep(0.5)
                 check_procesing_modal(driver)
-        
-                # Hacemos una espera de 60 segundos entre cada refresqueo del calendario
-                time.sleep(60)
         else:
             break
         
@@ -312,6 +312,11 @@ def calendar(driver, mes, anio, action_list, row):
 
     # Obtenemos email con PDF con el Codigo de seguridad y Token, esperamos 90 segundos a su llegada.
     print('[INFO] - Esperando por email con PDF para Codigo de seguridad y Token...')
+    
+    # HACK: Interrumpimos el procesamiento del correo y el pdf por contrasena
+    input('>> PROCESAMIENTO DE CORREO Y PDF MANUAL!!!')
+    return True
+    
     message = mail.get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx')
     if message:
         pdf_file_path = mail.save_pdf_from_message(message)

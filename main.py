@@ -162,7 +162,10 @@ def login(driver):
             print('[ERROR] - No se puede encontrar el elemento "btnLoginII" en la pagina de login')
             return False
         else:
-            element.click()
+            try:
+                element.click()
+            except TimeoutException:
+                return False
     
     return True
 
@@ -357,9 +360,8 @@ def main():
     driver = init_driver_instance()
 
     # Accedemos a la pagina de login
-    if login(driver) is False:
-        # Si no nos pudimos logear salimos de la app
-        return -1
+    while login(driver) is False:
+        time.sleep(10)
 
     # Test relogin
     """
@@ -384,18 +386,26 @@ def main():
             'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
             'Citas SRE'
         ):
-            print('[ERROR] - No se pudo acceder a la pagina de citas.')
-            input('>>')
-            return -1
+            while login(driver) is False:
+                time.sleep(10)
+            
         
         # TODO: Sobre escritura de funcion originalHandler para imprimir a consola todas las peticiones/respuestas
         # hechas por el navegador
 
         # Redefinimos la propiedad navigator.webdriver a false para Captcha de Google
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
+        try:
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
+        except JavascriptException as error:
+            print(error)
+            continue
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
-        driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
+        try:
+            driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
+        except JavascriptException as error:
+            print(error)
+            continue
 
         # Sobreescritura de funcion "handleAjaxComplete"
         driver.execute_script("""\

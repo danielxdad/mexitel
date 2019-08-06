@@ -4,9 +4,15 @@ from http import HTTPStatus
 
 import requests
 import chardet
+from colorama import Fore
 from bs4 import BeautifulSoup as BS
 
 import config
+
+
+def print_message(msg, *args, **kwargs):
+    color = kwargs.pop('color', Fore.LIGHTGREEN_EX)
+    print(color + msg, *args, **kwargs)
 
 
 def test_need_relogin(driver, tries=120):

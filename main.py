@@ -22,7 +22,7 @@ args = None     # Variable global para parametros de la linea de comandos
 
 
 # From: http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
-def wait_for(condition_function, timeout=30):
+def wait_for(condition_function, timeout=90):
     start_time = time.time()
     while time.time() < start_time + timeout:
         if condition_function():
@@ -33,7 +33,7 @@ def wait_for(condition_function, timeout=30):
 
 
 class wait_for_page_load(object):
-    def __init__(self, browser, timeout=60):
+    def __init__(self, browser, timeout=90):
         self.browser = browser
         self.timeout = timeout
 

@@ -1,0 +1,33 @@
+[ERROR] - JS exception en mail.execute_action_navigator: Message: TypeError: window.document.getElementById(...) is null
+ - formRegistroCitaExtranjero:selectPaisPasaporte_label
+
+
+
+Traceback (most recent call last):
+  File "main.py", line 492, in <module>
+    exit(main())
+  File "main.py", line 360, in main
+    while login(driver) is False:
+  File "main.py", line 165, in login
+    element.click()
+  File "main.py", line 49, in __exit__
+    wait_for(self.page_has_loaded, self.timeout)
+  File "main.py", line 32, in wait_for
+    raise TimeoutException()
+selenium.common.exceptions.TimeoutException: Message: None
+
+
+
+
+Traceback (most recent call last):
+  File "main.py", line 492, in <module>
+    if __name__ == "__main__":
+  File "main.py", line 360, in main
+    driver = init_driver_instance()
+  File "main.py", line 165, in login
+    try:
+  File "main.py", line 49, in __exit__
+    wait_for(self.page_has_loaded, self.timeout)
+  File "main.py", line 32, in wait_for
+    raise TimeoutException()
+selenium.common.exceptions.TimeoutException: Message: None

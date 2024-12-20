@@ -11,7 +11,7 @@ def read_config(config_file, section):
     :return: Diccionario con los valores y datos de la seccion espeficada
     """
     cfgp = ConfigParser()
-    with open(config_file, 'r') as fp:
+    with open(config_file, "r") as fp:
         cfgp.read_file(fp)
         d = dict(cfgp.items(section))
     return d

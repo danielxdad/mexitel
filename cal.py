@@ -18,21 +18,35 @@ import window_tk
 import utils
 
 
-MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 
-        'septiembre', 'octubre', 'noviembre', 'diciembre']
+MESES = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+]
 
 ANIOS = list(range(datetime.date.today().year, datetime.date.today().year + 2))
 
 
 def _search_cal_header(driver):
     """
-    Devuelve una lista con los elementos "boton Atras", "Titulo(H2)" y "boton Adelante" del header del calendario 
+    Devuelve una lista con los elementos "boton Atras", "Titulo(H2)" y "boton Adelante" del header del calendario
     :param driver: Instancia de driver de navegador
     :return: WebElement o None
     """
-    xpath_list = ['//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[1]/button', 
-        '//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[3]/h2', 
-        '//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[2]/button']
+    xpath_list = [
+        '//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[1]/button',
+        '//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[3]/h2',
+        '//*[@id="formRegistroCitaExtranjero:schedule_container"]/div[1]/div[2]/button',
+    ]
     elements = []
     for xpath in xpath_list:
         try:
@@ -56,21 +70,31 @@ def _go_to_month(driver, mes, anio):
     from main import check_procesing_modal
 
     # Buscamos los botones de Adelante y Atras y el H2 con el mes y anio en la cabecera del calendario
-    el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+    el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(
+        driver
+    )
     if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
         return False
 
     mes = mes.lower()
-    header_month, header_year = el_cal_header.text.strip().lower().split(' ')
+    header_month, header_year = el_cal_header.text.strip().lower().split(" ")
 
     try:
         header_year = int(header_year)
     except (ValueError, TypeError):
-        print('[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(header_month, header_year))
+        print(
+            '[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(
+                header_month, header_year
+            )
+        )
         return False
 
     if header_month not in MESES or header_year not in ANIOS:
-        print('[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(header_month, header_year))
+        print(
+            '[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(
+                header_month, header_year
+            )
+        )
         return False
 
     # Obtenemos los indices del mes y anio del calendario y del parametro mes y anio
@@ -80,52 +104,64 @@ def _go_to_month(driver, mes, anio):
     anio_index = ANIOS.index(anio)
 
     while hy_index != anio_index or hm_index != mes_index:
-        el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+        el_cal_button_backward, el_cal_header, el_cal_button_forward = (
+            _search_cal_header(driver)
+        )
         if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
             return False
 
         # Si el anio en que esta el calendario es menor que el especificado
         if hy_index < anio_index:
-            el_cal_button_forward.click()   # Damos click en el boton Adelante
-            time.sleep(0.5)                 # Esperamos 0.5 segundos
-            check_procesing_modal(driver)   # Chequemos el modal "Procesando..."
+            el_cal_button_forward.click()  # Damos click en el boton Adelante
+            time.sleep(0.5)  # Esperamos 0.5 segundos
+            check_procesing_modal(driver)  # Chequemos el modal "Procesando..."
         # Si el anio en que esta el calendario es mayor que el especificado
         elif hy_index > anio_index:
             el_cal_button_backward.click()  # Damos click en el boton Atras
-            time.sleep(0.5)                 # Esperamos 0.5 segundos
-            check_procesing_modal(driver)   # Chequemos el modal "Procesando..."
+            time.sleep(0.5)  # Esperamos 0.5 segundos
+            check_procesing_modal(driver)  # Chequemos el modal "Procesando..."
         # Si los dos anios son iguales, chequeamos los meses
         else:
             if hm_index < mes_index:
-                el_cal_button_forward.click()   # Damos click en el boton Adelante
-                time.sleep(0.5)                 # Esperamos 0.5 segundos
-                check_procesing_modal(driver)   # Chequemos el modal "Procesando..
+                el_cal_button_forward.click()  # Damos click en el boton Adelante
+                time.sleep(0.5)  # Esperamos 0.5 segundos
+                check_procesing_modal(driver)  # Chequemos el modal "Procesando..
             elif hm_index > mes_index:
                 el_cal_button_backward.click()  # Damos click en el boton Atras
-                time.sleep(0.5)                 # Esperamos 0.5 segundos
-                check_procesing_modal(driver)   # Chequemos el modal "Procesando..."
+                time.sleep(0.5)  # Esperamos 0.5 segundos
+                check_procesing_modal(driver)  # Chequemos el modal "Procesando..."
             else:
                 return True
-        
-        el_cal_button_backward, el_cal_header, el_cal_button_forward = _search_cal_header(driver)
+
+        el_cal_button_backward, el_cal_header, el_cal_button_forward = (
+            _search_cal_header(driver)
+        )
         if not el_cal_button_backward or not el_cal_header or not el_cal_button_forward:
             return False
-        
+
         # Volvemos a coger los valores de Mes/Anio del calendario
-        header_month, header_year = el_cal_header.text.strip().lower().split(' ')
+        header_month, header_year = el_cal_header.text.strip().lower().split(" ")
         try:
             header_year = int(header_year)
         except (ValueError, TypeError):
-            print('[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(header_month, header_year))
+            print(
+                '[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(
+                    header_month, header_year
+                )
+            )
             return False
 
         if header_month not in MESES or header_year not in ANIOS:
-            print('[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(header_month, header_year))
+            print(
+                '[ERROR] - El mes o el anio en el header del calendario no es valido: "{} {}"'.format(
+                    header_month, header_year
+                )
+            )
             return False
 
         hm_index = MESES.index(header_month)
         hy_index = ANIOS.index(header_year)
-    
+
     return True
 
 
@@ -144,66 +180,91 @@ def refill_form_citas(driver, action_list, row):
     # Antes de rellenar el form, hay que resetear el formulario y rehabilitar todos los campos
     # Solo con cambiar el pais a por ejemplo COLOMBIA ya se resetea el formulario
     action = {
-        'action_type': 'navigator',
-        'find_by': By.ID,
-        'selector': 'formRegistroCitaExtranjero:selectPais_label',
-        'tag_name': 'label',
-        'data': (None, None), # Especifica el origen de los datos que se utilizaran para llenar el campo
-        'fill_method': 'actions_chain',
-        'actions_chain': [
-            ('click', ['<!-element-!>']),  # Damos un click en el elemento
-            ('pause', [0.5]), # Pause de 0.5 segundos
-            ('send_keys', ['COLOMBIA']), # Enviamos los datos de la columna pais (<!-data-!>)
-            ('send_keys', [Keys.ENTER]), # Damos enter
-            ('pause', [0.5]), # Pause de 0.5 segundos
-            ('<!-check-procesing-modal-!>', []),
-        ]
+        "action_type": "navigator",
+        "find_by": By.ID,
+        "selector": "formRegistroCitaExtranjero:selectPais_label",
+        "tag_name": "label",
+        "data": (
+            None,
+            None,
+        ),  # Especifica el origen de los datos que se utilizaran para llenar el campo
+        "fill_method": "actions_chain",
+        "actions_chain": [
+            ("click", ["<!-element-!>"]),  # Damos un click en el elemento
+            ("pause", [0.5]),  # Pause de 0.5 segundos
+            (
+                "send_keys",
+                ["COLOMBIA"],
+            ),  # Enviamos los datos de la columna pais (<!-data-!>)
+            ("send_keys", [Keys.ENTER]),  # Damos enter
+            ("pause", [0.5]),  # Pause de 0.5 segundos
+            ("<!-check-procesing-modal-!>", []),
+        ],
     }
 
     if utils.test_need_relogin(driver):
-        return 'relogin'
+        return "relogin"
 
     if not execute_action_navigator(driver, action, row):
-        print('[ERROR] - No se pudo resetear el formulario de datos.')
-        return 'error'
+        print("[ERROR] - No se pudo resetear el formulario de datos.")
+        return "error"
 
     for action_index, action in enumerate(action_list):
-        if action['action_type'] == 'navigator':
+        if action["action_type"] == "navigator":
             # Antes de ejecutar una accion en el navegador testeamos nuevamente si hace falta hacer relogin
             if utils.test_need_relogin(driver):
-                return 'relogin'
-            
-            if not execute_action_navigator(driver, action, row):
-                return 'error'
+                return "relogin"
 
-        elif action['action_type'] == 'function':
-            if 'function' not in action:
-                print('[ERROR] - La clave "function" no existe en la accion "function", indice: %d' % action_index)
-                return 'error'
-            
-            func = action['function']
+            if not execute_action_navigator(driver, action, row):
+                return "error"
+
+        elif action["action_type"] == "function":
+            if "function" not in action:
+                print(
+                    '[ERROR] - La clave "function" no existe en la accion "function", indice: %d'
+                    % action_index
+                )
+                return "error"
+
+            func = action["function"]
             # Ignoramos la llamada a procesar_calendario que invoca cal.calendar para evitar recursividad.
             if func == procesar_calendario:
                 continue
 
             if not callable(func):
-                print('[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d' % action_index)
-                return 'error'
+                print(
+                    '[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d'
+                    % action_index
+                )
+                return "error"
 
-            if not func(driver, mes=args.mes[0], anio=args.anio[0], action_list=action_list, row=row):
-                print('[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d' % action_index)
-                return 'error'
+            if not func(
+                driver,
+                mes=args.mes[0],
+                anio=args.anio[0],
+                action_list=action_list,
+                row=row,
+            ):
+                print(
+                    '[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d'
+                    % action_index
+                )
+                return "error"
 
         else:
-            print('[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(action_index + 1, action['action_type']))
-            return 'error'
-    
-    return 'success'
+            print(
+                '[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(
+                    action_index + 1, action["action_type"]
+                )
+            )
+            return "error"
+
+    return "success"
 
 
 def calendar(driver, mes, anio, action_list, row):
     """
-    Funcion que hara el trabajo del calendario. 
+    Funcion que hara el trabajo del calendario.
     :param driver: Instancia de driver de navegador
     :param mes: Mes en el cual se buscara la disponibilidad: "Mayo"
     :param anio: Anio en el cual se buscar la disponibilidad: "2019"
@@ -211,47 +272,51 @@ def calendar(driver, mes, anio, action_list, row):
     """
     # Importamos esto aqui ;)
     from main import check_procesing_modal
-    
-    print('[INFO] - Entrando en el calendario...')
+
+    print("[INFO] - Entrando en el calendario...")
 
     a_tags_elements = []
     while True:
         # TODO: Eliminar esto, es para probar el relogin
         # if random.random() > 0.6:
-            # print('[INFO] - Emulando cierre de sesion...')
-            # driver.delete_cookie('JSESSIONID')
-            # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx',
-                # 'path': '/',
-                # 'value': 'T2hpcfYcS017MNnQn1nyAxWf5LQFyCJnhg7LgT11vtbl2ZHT3ykz!1650797564!947129112',
-            # })
-            # time.sleep(0.5)
+        # print('[INFO] - Emulando cierre de sesion...')
+        # driver.delete_cookie('JSESSIONID')
+        # driver.add_cookie({'name': 'JSESSIONID', 'httpOnly': True, 'domain': 'mexitel.sre.gob.mx',
+        # 'path': '/',
+        # 'value': 'T2hpcfYcS017MNnQn1nyAxWf5LQFyCJnhg7LgT11vtbl2ZHT3ykz!1650797564!947129112',
+        # })
+        # time.sleep(0.5)
         # ///////////////////////////////////////////////////////////////////////////////////////////
-        
+
         # Mientras que se necesite hacer relogin, lo hacemos
         if utils.test_need_relogin(driver):
             if utils.relogin(driver):
-                print('[INFO] - Relogin satifactorio. Rellenando formulario...')
+                print("[INFO] - Relogin satifactorio. Rellenando formulario...")
                 # Luego de hacer el relogin rellenamos nuevamente el formulario
                 result = refill_form_citas(driver, action_list, row)
-                if result == 'relogin':
+                if result == "relogin":
                     continue
-                elif result == 'error':
+                elif result == "error":
                     return False
             else:
-                print('[INFO] - No se pudo hacer relogin, reintentando...')
+                print("[INFO] - No se pudo hacer relogin, reintentando...")
                 continue
 
         if not _go_to_month(driver, mes, anio):
             continue
 
         # Buscamos tags A que dice la cantidad de citas disponibles por dia clases css
-        a_tags_css_selectors = ['a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoTotalDisponibilidad',
-                                'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoModerado',
-                                'a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad']
+        a_tags_css_selectors = [
+            "a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoTotalDisponibilidad",
+            "a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoModerado",
+            "a.fc-day-grid-event.fc-event.fc-start.fc-end.rangoAltaDisponibilidad",
+        ]
         wait = WebDriverWait(driver, 0.5)
         for css_sel in a_tags_css_selectors:
             try:
-                a_tags_elements += wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel)))
+                a_tags_elements += wait.until(
+                    EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel))
+                )
             except TimeoutException:
                 pass
 
@@ -261,10 +326,10 @@ def calendar(driver, mes, anio, action_list, row):
         if not a_tags_elements:
             # Hacemos una espera de 10 segundos entre cada refresqueo del calendario
             time.sleep(10)
-            
+
             try:
                 # Boton Mes, ID: "formRegistroCitaExtranjero:Month"
-                el = driver.find_element_by_id('formRegistroCitaExtranjero:Month')
+                el = driver.find_element_by_id("formRegistroCitaExtranjero:Month")
             except NoSuchElementException:
                 print('[ERROR] - No existe el boton "Mes" en el header del calendario.')
                 return False
@@ -275,103 +340,130 @@ def calendar(driver, mes, anio, action_list, row):
                 check_procesing_modal(driver)
         else:
             break
-        
+
     # Tomamos uno de los tags A de dias con disponibilidad aleatoriamente
     a_element = random.choice(a_tags_elements)
-    
-    # Damos click en el tag A para acceder a ese dia, hacemos un tiempo de espera 
+
+    # Damos click en el tag A para acceder a ese dia, hacemos un tiempo de espera
     # y chequemos la aparacion del modal "Procesando..."
-    driver.execute_script("window.scrollTo(0, %d);" % (a_element.location['y'] - 200))
+    driver.execute_script("window.scrollTo(0, %d);" % (a_element.location["y"] - 200))
     a_element.click()
     time.sleep(0.5)
     check_procesing_modal(driver)
     time.sleep(0.5)
 
     # Buscamos los tags A que especifica la hora de disponibilidad de la cita: "9:00 - 7 disponibles"
-    a_tags_css_selectors = ['a.fc-time-grid-event.fc-event.fc-start.fc-end']
+    a_tags_css_selectors = ["a.fc-time-grid-event.fc-event.fc-start.fc-end"]
     a_tags_elements = []
     wait = WebDriverWait(driver, 1)
     for css_sel in a_tags_css_selectors:
         try:
-            a_tags_elements += wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel)))
+            a_tags_elements += wait.until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_sel))
+            )
         except TimeoutException:
             pass
 
     # Si no se encontraron tags A para dias con disponibildad en el calendario
     if not a_tags_elements:
         # Mostramos mensaje de error y devolvemos false
-        print('[ERROR] - No se encontraron horas con disponibilidad en el dia seleccionado.')
+        print(
+            "[ERROR] - No se encontraron horas con disponibilidad en el dia seleccionado."
+        )
         return False
-    
+
     # Tomamos uno de los tags A de hora con disponibilidad aleatoriamente y le damos click
     a_element = random.choice(a_tags_elements)
-    driver.execute_script("window.scrollTo(0, %d);" % (a_element.location['y'] - 200))
+    driver.execute_script("window.scrollTo(0, %d);" % (a_element.location["y"] - 200))
     a_element.click()
     time.sleep(0.7)
     check_procesing_modal(driver)
 
     # Obtenemos email con PDF con el Codigo de seguridad y Token, esperamos 90 segundos a su llegada.
-    print('[INFO] - Esperando por email con PDF para Codigo de seguridad y Token...')
-    
+    print("[INFO] - Esperando por email con PDF para Codigo de seguridad y Token...")
+
     # HACK: Interrumpimos el procesamiento del correo y el pdf por contrasena
-    input('>> PROCESAMIENTO DE CORREO Y PDF MANUAL!!!')
+    input(">> PROCESAMIENTO DE CORREO Y PDF MANUAL!!!")
     return True
-    
-    message = mail.get_email_pdf_tokens(timeout=120, filter_email_from='citas_sre@sre.gob.mx')
+
+    message = mail.get_email_pdf_tokens(
+        timeout=120, filter_email_from="citas_sre@sre.gob.mx"
+    )
     if message:
         pdf_file_path = mail.save_pdf_from_message(message)
         codigo_seg, text_token = pdf.extract_pdf_tokens(pdf_file_path)
-        print('[INFO] - PDF: %s' % pdf_file_path)
-        print('[INFO] - Codigo seguridad: %s' % codigo_seg)
-        print('[INFO] - Token: %s' % text_token)
-        
-        # Ventana aparte del navegador para mostrar la imagen obtenida del "Codigo de seguridad" en el correo 
+        print("[INFO] - PDF: %s" % pdf_file_path)
+        print("[INFO] - Codigo seguridad: %s" % codigo_seg)
+        print("[INFO] - Token: %s" % text_token)
+
+        # Ventana aparte del navegador para mostrar la imagen obtenida del "Codigo de seguridad" en el correo
         # y lo que se ha sacado por OCR para combrobar que esta bien
-        if not os.path.exists(os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png')):
-            print('[ERROR] - La imagen "%s".' % os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png'))
+        if not os.path.exists(
+            os.path.join(config.PDF_TMP_IMAGES_DIR, "tesseract_image.png")
+        ):
+            print(
+                '[ERROR] - La imagen "%s".'
+                % os.path.join(config.PDF_TMP_IMAGES_DIR, "tesseract_image.png")
+            )
             return False
 
         root = tk.Tk()
-        app = window_tk.Application(master=root,
-                                    imagen=os.path.join(config.PDF_TMP_IMAGES_DIR, 'tesseract_image.png'),
-                                    text_ocr=codigo_seg)
+        app = window_tk.Application(
+            master=root,
+            imagen=os.path.join(config.PDF_TMP_IMAGES_DIR, "tesseract_image.png"),
+            text_ocr=codigo_seg,
+        )
         app.mainloop()
         codigo_seg = app.text_ocr.strip()
 
         # Buscamos el modal con la informacion de la cita y los campos para Codigo de seguridad y Token
         # y testeamos que sea visible
         try:
-            el_modal = driver.find_element_by_id('confirmDialog')
+            el_modal = driver.find_element_by_id("confirmDialog")
         except NoSuchElementException:
             print('[ERROR] - No se ha podido encontrar el modal "Detalle de la cita".')
             return False
-        
+
         if not el_modal.is_displayed():
             print('[ERROR] - El modal "Detalle de la cita" no es visible al usuario.')
             return False
-        
+
         # Buscamos el campo INPUT Codigo de seguridad y INPUT Token para establecerle los valores
         try:
-            el_input_cod_seg = driver.find_element_by_id('reviewForm:confirmCodigoSeguridad')
+            el_input_cod_seg = driver.find_element_by_id(
+                "reviewForm:confirmCodigoSeguridad"
+            )
         except NoSuchElementException:
-            print('[ERROR] - No se ha podido encontrar el campo "Codigo de seguridad" en el modal "Detalle de la cita".')
+            print(
+                '[ERROR] - No se ha podido encontrar el campo "Codigo de seguridad" en el modal "Detalle de la cita".'
+            )
             return False
         else:
             # Hacemos un scroll al elemento
-            driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format('reviewForm:confirmCodigoSeguridad'))
+            driver.execute_script(
+                'document.getElementById("{}").scrollIntoView(false)'.format(
+                    "reviewForm:confirmCodigoSeguridad"
+                )
+            )
             time.sleep(0.2)
             el_input_cod_seg.click()
             time.sleep(0.2)
             el_input_cod_seg.send_keys(codigo_seg)
-        
+
         try:
-            el_input_token = driver.find_element_by_id('reviewForm:confirmToken')
+            el_input_token = driver.find_element_by_id("reviewForm:confirmToken")
         except NoSuchElementException:
-            print('[ERROR] - No se ha podido encontrar el campo "Token" en el modal "Detalle de la cita".')
+            print(
+                '[ERROR] - No se ha podido encontrar el campo "Token" en el modal "Detalle de la cita".'
+            )
             return False
         else:
             # Hacemos un scroll al elemento
-            driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format('reviewForm:confirmToken'))
+            driver.execute_script(
+                'document.getElementById("{}").scrollIntoView(false)'.format(
+                    "reviewForm:confirmToken"
+                )
+            )
             time.sleep(0.2)
             el_input_token.click()
             time.sleep(0.2)
@@ -379,42 +471,54 @@ def calendar(driver, mes, anio, action_list, row):
 
         # Buscamos el boton de confirmar la cita
         try:
-            el_button_confirm = driver.find_element_by_id('reviewForm:confirmarCita')
+            el_button_confirm = driver.find_element_by_id("reviewForm:confirmarCita")
         except NoSuchElementException:
-            print('[ERROR] - No se ha podido encontrar el boton "Confirmar cita" en el modal "Detalle de la cita".')
+            print(
+                '[ERROR] - No se ha podido encontrar el boton "Confirmar cita" en el modal "Detalle de la cita".'
+            )
             return False
         else:
             # Hacemos un scroll al elemento
-            driver.execute_script('document.getElementById("{}").scrollIntoView(false)'.format('reviewForm:confirmarCita'))
+            driver.execute_script(
+                'document.getElementById("{}").scrollIntoView(false)'.format(
+                    "reviewForm:confirmarCita"
+                )
+            )
             time.sleep(0.2)
             el_button_confirm.click()
             time.sleep(0.5)
             check_procesing_modal(driver)
-        
+
         # TODO: Mejorar comprobacion de este modal ya que puede demorarse en salir debido a carga de la pagina
         time.sleep(3)
         try:
             # Testeamos la aparacicion del modal "Has concluido tu tramite", ID: "#j_idt427"
-            el_modal = driver.find_element_by_id('j_idt427')
+            el_modal = driver.find_element_by_id("j_idt427")
         except NoSuchElementException:
-            print('[ERROR] - No se ha podido encontrar el modal "Has concluido tu tramite".')
+            print(
+                '[ERROR] - No se ha podido encontrar el modal "Has concluido tu tramite".'
+            )
             return False
         else:
             time.sleep(1.5)
             if not el_modal.is_displayed():
-                print('[ERROR] - El modal "Has concluido tu tramite" no esta visible para el usuario.')
+                print(
+                    '[ERROR] - El modal "Has concluido tu tramite" no esta visible para el usuario.'
+                )
                 return False
-            
+
             # Testeamos el titulo del modal
-            el_modal_title = driver.find_element_by_id('j_idt427_title')
-            if el_modal_title.text.strip().find('Has concluido tu trámite') == -1:
-                print('[ERROR] - El titulo del modal "Has concluido tu tramite" no '
-                      'corresponde con "Has concluido tu trámite"')
+            el_modal_title = driver.find_element_by_id("j_idt427_title")
+            if el_modal_title.text.strip().find("Has concluido tu trámite") == -1:
+                print(
+                    '[ERROR] - El titulo del modal "Has concluido tu tramite" no '
+                    'corresponde con "Has concluido tu trámite"'
+                )
                 return False
     else:
-        print('[WARN] - Tiempo de espera agotado en obtencion de email con tokens.')
+        print("[WARN] - Tiempo de espera agotado en obtencion de email con tokens.")
         return False
-    
+
     # Si llegamos aqui tenemos una en la buchaca XD
-    print('[INFO] - Se ha confirmado una cita en el calendario.')
+    print("[INFO] - Se ha confirmado una cita en el calendario.")
     return True

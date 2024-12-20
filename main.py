@@ -10,15 +10,21 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, WebDriverException, TimeoutException, \
-    MoveTargetOutOfBoundsException, JavascriptException, StaleElementReferenceException
+from selenium.common.exceptions import (
+    NoSuchElementException,
+    WebDriverException,
+    TimeoutException,
+    MoveTargetOutOfBoundsException,
+    JavascriptException,
+    StaleElementReferenceException,
+)
 
 import config
 import cal
 
 
-driver = None   # Variable global para WebDriver handler
-args = None     # Variable global para parametros de la linea de comandos
+driver = None  # Variable global para WebDriver handler
+args = None  # Variable global para parametros de la linea de comandos
 
 
 # From: http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
@@ -38,12 +44,12 @@ class wait_for_page_load(object):
         self.timeout = timeout
 
     def __enter__(self):
-        self.old_page = self.browser.find_element_by_tag_name('html')
+        self.old_page = self.browser.find_element_by_tag_name("html")
 
     def page_has_loaded(self):
-        new_page = self.browser.find_element_by_tag_name('html')
-        ready_state = self.browser.execute_script('return window.document.readyState;')
-        return new_page.id != self.old_page.id and ready_state == 'complete'
+        new_page = self.browser.find_element_by_tag_name("html")
+        ready_state = self.browser.execute_script("return window.document.readyState;")
+        return new_page.id != self.old_page.id and ready_state == "complete"
 
     def __exit__(self, *_):
         wait_for(self.page_has_loaded, self.timeout)
@@ -59,7 +65,11 @@ def test_url_page_title(driver, url, title):
     """
     parser_driver_url = parse.urlparse(driver.current_url)
     parser_url = parse.urlparse(url)
-    pdu_tuple = (parser_driver_url.scheme, parser_driver_url.netloc, parser_driver_url.path)
+    pdu_tuple = (
+        parser_driver_url.scheme,
+        parser_driver_url.netloc,
+        parser_driver_url.path,
+    )
     pu_tuple = (parser_url.scheme, parser_url.netloc, parser_url.path)
     return pdu_tuple == pu_tuple and driver.title.lower() == title.lower()
 
@@ -74,12 +84,12 @@ def init_driver_instance(implicitly_wait=4):
 
     fp = webdriver.FirefoxProfile()
     # Lenguage por defecto
-    fp.set_preference("intl.accept_languages", 'es-ES, es, en-US, en')
+    fp.set_preference("intl.accept_languages", "es-ES, es, en-US, en")
     # No bloqueamos el contenido mixto (https://developer.mozilla.org/en-US/docs/Web/Security/Mixed_content)
     fp.set_preference("security.mixed_content.block_active_content", False)
     fp.set_preference("network.http.max-persistent-connections-per-server", 4)
     fp.set_preference("network.tcp.keepalive.idle_time", 7200)
-    fp.set_preference('devtools.console.stdout.content', True)
+    fp.set_preference("devtools.console.stdout.content", True)
     # Si se ha especificado el parametro --tor en la linea de comandos
     if args.tor:
         # Establecemos el Proxy SOCKSv5 en el navegador
@@ -89,9 +99,16 @@ def init_driver_instance(implicitly_wait=4):
         fp.set_preference("network.proxy.socks_version", 5)
     fp.update_preferences()
 
-    driver = webdriver.Firefox(firefox_profile=fp)
+    firefox_options = webdriver.FirefoxOptions()
+    firefox_options.profile = fp
+    firefox_options.binary_location = "/usr/bin/firefox"
 
-    driver.install_addon(os.path.join(config.BASE_DIR, 'disconnect-5.18.27-fx.xpi'), True)
+    driver = webdriver.Firefox(firefox_options)
+
+    driver.install_addon(
+        os.path.join(config.BASE_DIR, "disconnect-5.18.27-fx.xpi"), True
+    )
+
     driver.implicitly_wait(implicitly_wait)
     driver.maximize_window()
 
@@ -106,11 +123,15 @@ def nav_to_page(driver, url):
     @return bool: Devuelve True o False
     """
     parser = parse.urlparse(url)
-    if parser.scheme not in ['http', 'https']:
-        raise ValueError('El protocolo de la URL es incorrecto: {}'.format(repr(parser.scheme)))
-    
+    if parser.scheme not in ["http", "https"]:
+        raise ValueError(
+            "El protocolo de la URL es incorrecto: {}".format(repr(parser.scheme))
+        )
+
     if not parser.netloc:
-        raise ValueError('No se ha especificado un dominio en la URL: {}'.format(repr(url)))
+        raise ValueError(
+            "No se ha especificado un dominio en la URL: {}".format(repr(url))
+        )
 
     with wait_for_page_load(driver):
         driver.get(url)
@@ -125,48 +146,64 @@ def login(driver):
     try:
         nav_to_page(driver, config.LOGIN_URL)
     except ValueError as err:
-        print('[ERROR] - {}'.format(err))
+        print("[ERROR] - {}".format(err))
         return False
     except TimeoutException:
-        print('[ERROR] - Tiempo de espera agotado al acceder a "{}"'.format(config.LOGIN_URL))
+        print(
+            '[ERROR] - Tiempo de espera agotado al acceder a "{}"'.format(
+                config.LOGIN_URL
+            )
+        )
         return False
     except WebDriverException as error:
-        print('[ERROR] - Error al acceder a "{}": {}'.format(config.LOGIN_URL, error.msg))
+        print(
+            '[ERROR] - Error al acceder a "{}": {}'.format(config.LOGIN_URL, error.msg)
+        )
         return False
-    
+
     # Username input element
     try:
         element = driver.find_element(By.ID, config.LOGIN_FIELD_USERNAME_ID)
     except NoSuchElementException:
-        print('[ERROR] - No se puede encontrar el elemento "{}" en la pagina de login'.format(config.LOGIN_FIELD_USERNAME_ID))
+        print(
+            '[ERROR] - No se puede encontrar el elemento "{}" en la pagina de login'.format(
+                config.LOGIN_FIELD_USERNAME_ID
+            )
+        )
         return False
     else:
         element.clear()
         element.send_keys(config.USERNAME)
-    
+
     # Password input element
     try:
         element = driver.find_element(By.ID, config.LOGIN_FIELD_PASSWORD_ID)
     except NoSuchElementException:
-        print('[ERROR] - No se puede encontrar el elemento "{}" en la pagina de login'.format(config.LOGIN_FIELD_PASSWORD_ID))
+        print(
+            '[ERROR] - No se puede encontrar el elemento "{}" en la pagina de login'.format(
+                config.LOGIN_FIELD_PASSWORD_ID
+            )
+        )
         return False
     else:
         element.clear()
         element.send_keys(config.PASSWORD)
-    
+
     # Boton "Ingresar"
     with wait_for_page_load(driver):
         try:
-            element = driver.find_element(By.ID, 'btnLoginII')
+            element = driver.find_element(By.ID, "btnLoginII")
         except NoSuchElementException:
-            print('[ERROR] - No se puede encontrar el elemento "btnLoginII" en la pagina de login')
+            print(
+                '[ERROR] - No se puede encontrar el elemento "btnLoginII" en la pagina de login'
+            )
             return False
         else:
             try:
                 element.click()
             except TimeoutException:
                 return False
-    
+
     return True
 
 
@@ -178,7 +215,7 @@ def check_procesing_modal(driver):
     """
     # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
     try:
-        element = driver.find_element_by_id('j_idt24')
+        element = driver.find_element_by_id("j_idt24")
     except NoSuchElementException:
         pass
     else:
@@ -209,79 +246,118 @@ def execute_action_navigator(driver, action, row):
     """
     # Hacemos un scroll al elemento para mostrarlo en el ViewPort
     try:
-        driver.execute_script('window.document.getElementById("{}").scrollIntoView(false)'.format(action['selector']))
+        driver.execute_script(
+            'window.document.getElementById("{}").scrollIntoView(false)'.format(
+                action["selector"]
+            )
+        )
     except JavascriptException as error:
-        print('[ERROR] - JS exception en mail.execute_action_navigator: {} - {}'.format(error, action['selector']))
+        print(
+            "[ERROR] - JS exception en mail.execute_action_navigator: {} - {}".format(
+                error, action["selector"]
+            )
+        )
         return False
-    
+
     time.sleep(0.1)
 
-    data_source, data_field = action['data']
-    if data_source == 'dataframe' and data_field not in row:
+    data_source, data_field = action["data"]
+    if data_source == "dataframe" and data_field not in row:
         print('[ERROR] - La columna "{}" no existe en el DataFrame.'.format(data_field))
         return False
-    
+
     # Realizamos las acciones de establecimiento de valor
-    if action['fill_method'] == 'actions_chain' and len(action['actions_chain']):
+    if action["fill_method"] == "actions_chain" and len(action["actions_chain"]):
         action_chain = ActionChains(driver)
-        for ac in action['actions_chain']:
+        for ac in action["actions_chain"]:
             # Obtenemos el elemento por el metodo especificado en la configuracion
             try:
-                element = driver.find_element(action['find_by'], action['selector'])
+                element = driver.find_element(action["find_by"], action["selector"])
             except NoSuchElementException:
-                print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
+                print(
+                    '[ERROR] - No se puede encontrar el elemento "{}"'.format(
+                        action["selector"]
+                    )
+                )
                 return False
 
             params = []
             for p in ac[1]:
-                if p == '<!-data-!>':
-                    if data_source == 'dataframe':
+                if p == "<!-data-!>":
+                    if data_source == "dataframe":
                         params.append(row[data_field])
-                elif p == '<!-element-!>':
+                elif p == "<!-element-!>":
                     params.append(element)
                 else:
                     params.append(p)
-            
+
             # Hay que emular la escritura de una persona con un tiempo de espera entre cada pulsacion
-            if ac[0] == 'send_keys':
-                if action['tag_name'] == 'label':
+            if ac[0] == "send_keys":
+                if action["tag_name"] == "label":
                     for key in params[0]:
                         if type(key) == str:
                             code = 'action_chain.{}("{}")'.format(ac[0], key)
                         else:
-                            code = 'action_chain.{}({})'.format(ac[0], key)
-                        eval(code, None, {'action_chain': action_chain, 'params': params, 'element': element})
-                        eval('action_chain.pause(0.07)')
-                
-                else:   # Si es un campo "INPUT" no hacemos el tiempo de espera entre cada pulsacion
+                            code = "action_chain.{}({})".format(ac[0], key)
+                        eval(
+                            code,
+                            None,
+                            {
+                                "action_chain": action_chain,
+                                "params": params,
+                                "element": element,
+                            },
+                        )
+                        eval("action_chain.pause(0.07)")
+
+                else:  # Si es un campo "INPUT" no hacemos el tiempo de espera entre cada pulsacion
                     action_chain.send_keys(params[0])
-            
+
             # Chequemos la presencia del modal "Procesando..."
-            elif ac[0] == '<!-check-procesing-modal-!>':
+            elif ac[0] == "<!-check-procesing-modal-!>":
                 check_procesing_modal(driver)
-            
+
             else:
-                eval('action_chain.{}(*params)'.format(ac[0]), None, 
-                    {'action_chain': action_chain, 'params': params, 'element': element})
-        
+                eval(
+                    "action_chain.{}(*params)".format(ac[0]),
+                    None,
+                    {
+                        "action_chain": action_chain,
+                        "params": params,
+                        "element": element,
+                    },
+                )
+
         # Obtenemos el elemento por el metodo especificado en la configuracion
         try:
-            element = driver.find_element(action['find_by'], action['selector'])
+            element = driver.find_element(action["find_by"], action["selector"])
         except NoSuchElementException:
-            print('[ERROR] - No se puede encontrar el elemento "{}"'.format(action['selector']))
+            print(
+                '[ERROR] - No se puede encontrar el elemento "{}"'.format(
+                    action["selector"]
+                )
+            )
             return False
 
         try:
-            eval('action_chain.perform()', None, {'action_chain': action_chain, 'element': element})
+            eval(
+                "action_chain.perform()",
+                None,
+                {"action_chain": action_chain, "element": element},
+            )
         except MoveTargetOutOfBoundsException:
-            print('[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(action['selector']))
+            print(
+                '[ERROR] - El elemento "{}" esta fuera del ViewPort.'.format(
+                    action["selector"]
+                )
+            )
             return False
         except StaleElementReferenceException as err:
-            print('[ERROR] - Error de referencia expirada: {}.'.format(err))
+            print("[ERROR] - Error de referencia expirada: {}.".format(err))
         else:
             # Esperamos porque el modal de "Procesando..." se oculte, este se muestra al realizar una accion
             check_procesing_modal(driver)
-    
+
     return True
 
 
@@ -292,16 +368,24 @@ def action_ask_completation_captcha(driver=None, *args, **kwargs):
     :param args: Argumentos pasado en la linea de comandos
     :return: Boolean
     """
-    for iframe in driver.find_elements_by_tag_name('iframe'):
+    for iframe in driver.find_elements_by_tag_name("iframe"):
         driver.switch_to.frame(iframe)
         try:
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
+            driver.execute_script(
+                "Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });"
+            )
         except JavascriptException as err:
-            print('[ERROR] - JSException main.action_ask_completation_captcha: {}'.format(err))
-        
+            print(
+                "[ERROR] - JSException main.action_ask_completation_captcha: {}".format(
+                    err
+                )
+            )
+
         driver.switch_to.default_content()
 
-    return input('[QUEST] - ¿Haz completado el Captcha de Google? (si/no): ').lower() in ['si', 's']
+    return input(
+        "[QUEST] - ¿Haz completado el Captcha de Google? (si/no): "
+    ).lower() in ["si", "s"]
 
 
 def procesar_calendario(driver=None, *args, **kwargs):
@@ -311,10 +395,10 @@ def procesar_calendario(driver=None, *args, **kwargs):
     :param args: Argumentos pasado en la linea de comandos
     :return: Boolean
     """
-    mes = kwargs.get('mes')
-    anio = kwargs.get('anio')
-    action_list = kwargs.get('action_list')
-    row = kwargs.get('row')
+    mes = kwargs.get("mes")
+    anio = kwargs.get("anio")
+    action_list = kwargs.get("action_list")
+    row = kwargs.get("row")
     return cal.calendar(driver, mes, anio, action_list, row)
 
 
@@ -322,12 +406,20 @@ def parse_argument():
     """
     Parsea los parametros de la linea de comandos
     """
-    parser = argparse.ArgumentParser(description='Mexitel fucker ;)')
-    parser.add_argument('--mes', nargs=1, type=str, choices=cal.MESES, help='Mes del calendario.')
-    parser.add_argument('--anio', nargs=1, type=int, choices=cal.ANIOS, help='Anio del calendario.')
-    parser.add_argument('--visas', action='store_true', help='Utilizar lista de acciones para Visas.')
-    parser.add_argument('--tor', action='store_true', help='Pasar por proxy local TOR SOCKSv5.')
-    parser.add_argument('file', nargs=1, help='Fichero con datos de clientes.')
+    parser = argparse.ArgumentParser(description="Mexitel fucker ;)")
+    parser.add_argument(
+        "--mes", nargs=1, type=str, choices=cal.MESES, help="Mes del calendario."
+    )
+    parser.add_argument(
+        "--anio", nargs=1, type=int, choices=cal.ANIOS, help="Anio del calendario."
+    )
+    parser.add_argument(
+        "--visas", action="store_true", help="Utilizar lista de acciones para Visas."
+    )
+    parser.add_argument(
+        "--tor", action="store_true", help="Pasar por proxy local TOR SOCKSv5."
+    )
+    parser.add_argument("file", nargs=1, help="Fichero con datos de clientes.")
     return parser.parse_args()
 
 
@@ -340,23 +432,25 @@ def main():
 
     excel_file = pathlib.Path(args.file[0])
     if not excel_file.exists():
-        print('[ERROR] - El fichero especificado no existe.')
+        print("[ERROR] - El fichero especificado no existe.")
         return -1
 
     # Leemos el fichero Excel(XLS) con datos de clientes
     df = pd.read_excel(
         excel_file,
         converters={
-            'fecha_nacimiento': lambda val: str(val),
-            'telefono_movil': lambda val: str(val),
-        }
+            "fecha_nacimiento": lambda val: str(val),
+            "telefono_movil": lambda val: str(val),
+        },
     )
 
     if args.visas:
         print('[INFO] - Utilizando cadena de acciones de "VISAS".')
     else:
-        print('[INFO] - Utilizando cadena de acciones de "CERTIFICADOS, LEGALIZACIONES Y VISADOS".')
-    
+        print(
+            '[INFO] - Utilizando cadena de acciones de "CERTIFICADOS, LEGALIZACIONES Y VISADOS".'
+        )
+
     driver = init_driver_instance()
 
     # Accedemos a la pagina de login
@@ -377,32 +471,35 @@ def main():
     """
 
     for index, row in df.iterrows():
-        if row['procesado'].lower() != 'no':
+        if row["procesado"].lower() != "no":
             continue
 
         # Testeamos la url actual y el titulo de la pagina
         if not test_url_page_title(
             driver,
-            'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf',
-            'Citas SRE'
+            "https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/registro/registroCitasPortalExtranjeros.jsf",
+            "Citas SRE",
         ):
             while login(driver) is False:
                 time.sleep(10)
-            
-        
+
         # TODO: Sobre escritura de funcion originalHandler para imprimir a consola todas las peticiones/respuestas
         # hechas por el navegador
 
         # Redefinimos la propiedad navigator.webdriver a false para Captcha de Google
         try:
-            driver.execute_script("Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });")
+            driver.execute_script(
+                "Object.defineProperty(navigator, 'webdriver', { get: () => false, configurable: true });"
+            )
         except JavascriptException as error:
             print(error)
             continue
 
         # Boton "Cerrar sesion", hacemos que si se da click o se invoca desde JS no haga nada
         try:
-            driver.execute_script('document.getElementById("headerForm:nonAjax").onclick=function(){return true}')
+            driver.execute_script(
+                'document.getElementById("headerForm:nonAjax").onclick=function(){return true}'
+            )
         except JavascriptException as error:
             print(error)
             continue
@@ -426,49 +523,81 @@ def main():
             //console.log(handleAjaxComplete.toSource())
         """)
 
-        print('[INFO] - Procesando registro {} - {} {}...'.format(index + 1, row['nombre'], row['apellidos']))
+        print(
+            "[INFO] - Procesando registro {} - {} {}...".format(
+                index + 1, row["nombre"], row["apellidos"]
+            )
+        )
 
-        action_list = config.ACTIONS_LIST_VISAS if args.visas else config.ACTIONS_LIST_CERT_LEG_VIS
+        action_list = (
+            config.ACTIONS_LIST_VISAS
+            if args.visas
+            else config.ACTIONS_LIST_CERT_LEG_VIS
+        )
         for action_index, action in enumerate(action_list):
-            if action['action_type'] == 'navigator':
+            if action["action_type"] == "navigator":
                 if not execute_action_navigator(driver, action, row):
                     return -1
 
-            elif action['action_type'] == 'function':
-                if 'function' not in action:
-                    print('[ERROR] - La clave "function" no existe en la accion "function", indice: %d' % action_index)
-                    return -1 
-                
-                func = action['function']
-                if not callable(func):
-                    print('[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d' % action_index)
+            elif action["action_type"] == "function":
+                if "function" not in action:
+                    print(
+                        '[ERROR] - La clave "function" no existe en la accion "function", indice: %d'
+                        % action_index
+                    )
                     return -1
 
-                if not func(driver, mes=args.mes[0], anio=args.anio[0], action_list=action_list, row=row):
-                    print('[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d' % action_index)
+                func = action["function"]
+                if not callable(func):
+                    print(
+                        '[ERROR] - El valor de la clave "function" en accion "function" no se una funcion, indice: %d'
+                        % action_index
+                    )
+                    return -1
+
+                if not func(
+                    driver,
+                    mes=args.mes[0],
+                    anio=args.anio[0],
+                    action_list=action_list,
+                    row=row,
+                ):
+                    print(
+                        '[ERROR] - La funcion de accion "function" a devuelto un valor False, indice: %d'
+                        % action_index
+                    )
                     return -1
 
             else:
-                print('[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(action_index + 1, action['action_type']))
+                print(
+                    '[ERROR] - Un tipo de accion no es soportada "{} - {}"'.format(
+                        action_index + 1, action["action_type"]
+                    )
+                )
                 return -1
 
         while True:
             try:
-                val = input('[INFO] - El registro {} - "{} {}" ha sido procesado? (si/no):'.format(
-                    index + 1, row['nombre'], row['apellidos'])).lower()
+                val = input(
+                    '[INFO] - El registro {} - "{} {}" ha sido procesado? (si/no):'.format(
+                        index + 1, row["nombre"], row["apellidos"]
+                    )
+                ).lower()
             except EOFError:
                 continue
             else:
-                if val == 'si':
-                    df.loc[index, 'procesado'] = 'SI'
+                if val == "si":
+                    df.loc[index, "procesado"] = "SI"
                 break
 
         try:
-            url = 'https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/' \
-                'registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true'
+            url = (
+                "https://mexitel.sre.gob.mx/citas.webportal/pages/private/cita/"
+                "registro/registroCitasPortalExtranjeros.jsf?nuevaCitaPortal=true"
+            )
             nav_to_page(driver, url)
         except ValueError as err:
-            print('[ERROR] - {}'.format(err))
+            print("[ERROR] - {}".format(err))
             return False
         except TimeoutException:
             print('[ERROR] - Tiempo de espera agotado al acceder a "{}"'.format(url))
@@ -476,11 +605,11 @@ def main():
         except WebDriverException as error:
             print('[ERROR] - Error al acceder a "{}": {}'.format(url, error.msg))
             return False
-    
+
     # Actualizamos los registros en el fichero Excel que hayan sido procesados correctamente
     with pd.ExcelWriter(str(excel_file.resolve())) as writer:
         df.to_excel(writer, index=False)
-    
+
     try:
         input('[INFO] - Presione "Enter" para salir...')
     except EOFError:
@@ -494,5 +623,5 @@ if __name__ == "__main__":
     try:
         exit(main())
     except KeyboardInterrupt:
-        print('')
+        print("")
         exit(0)

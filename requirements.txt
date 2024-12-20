@@ -13,4 +13,4 @@ pytz
 requests
 selenium
 ruff
-
+colorama
